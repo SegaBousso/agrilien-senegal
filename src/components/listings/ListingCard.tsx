@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, MapPin, Package } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
+import { ArrowRight, Heart, MapPin, Package, Sprout } from 'lucide-react';
 import { useToggleFavorite } from '@/hooks/useFavorites';
 import { useAuth } from '@/context/AuthContext';
 import { cn, formatPrice, formatQuantity } from '@/lib/utils';
@@ -23,21 +22,31 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
     PLACEHOLDER_IMAGE;
 
   const canFavorite = showFavorite && session && role === 'buyer';
+  const farmName = listing.producer?.farm_name;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-soft-lg">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft-lg">
       <Link to={`/annonce/${listing.id}`} className="relative block aspect-[4/3] overflow-hidden">
         <img
           src={mainImage}
           alt={listing.title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.07]"
         />
+        {/* Voile bas pour lisibilité de la pastille de prix */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/45 to-transparent"
+        />
+
+        {/* Catégorie — puce en verre */}
         {listing.category && (
-          <Badge className="absolute left-3 top-3 bg-white/90 text-primary-700 backdrop-blur">
+          <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-surface/95 px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-sm ring-1 ring-black/5 backdrop-blur">
             {listing.category.name}
-          </Badge>
+          </span>
         )}
+
+        {/* Favori */}
         {canFavorite && (
           <button
             onClick={(e) => {
@@ -45,16 +54,32 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
               toggle.mutate({ listingId: listing.id, isFavorite });
             }}
             aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-600 shadow-sm backdrop-blur transition hover:text-red-500"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/95 text-gray-600 shadow-sm ring-1 ring-black/5 backdrop-blur transition-all duration-200 hover:scale-110 hover:text-red-500 active:scale-90"
           >
-            <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
+            <Heart className={cn('h-[18px] w-[18px]', isFavorite && 'fill-red-500 text-red-500')} />
           </button>
         )}
+
+        {/* Pastille de prix en verre, sur l'image */}
+        <div className="absolute bottom-3 left-3 flex items-baseline gap-1 rounded-full bg-surface/95 px-3 py-1.5 shadow-soft ring-1 ring-black/5 backdrop-blur">
+          <span className="font-display text-base font-bold tracking-tight text-primary-700">
+            {formatPrice(listing.price)}
+          </span>
+          <span className="text-[11px] font-medium text-gray-500">/ {listing.unit}</span>
+        </div>
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
+        {/* Attribution producteur */}
+        {farmName && (
+          <p className="mb-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary-600">
+            <Sprout className="h-3.5 w-3.5" />
+            <span className="truncate">{farmName}</span>
+          </p>
+        )}
+
         <Link to={`/annonce/${listing.id}`}>
-          <h3 className="line-clamp-2 font-semibold text-gray-900 group-hover:text-primary-700">
+          <h3 className="line-clamp-2 font-display font-semibold leading-snug text-gray-900 transition-colors group-hover:text-primary-700">
             {listing.title}
           </h3>
         </Link>
@@ -68,18 +93,14 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
           </span>
         </div>
 
-        <div className="mt-auto flex items-end justify-between pt-4">
-          <div>
-            <p className="font-display text-lg font-bold tracking-tight text-primary-700">
-              {formatPrice(listing.price)}
-            </p>
-            <p className="text-xs text-gray-400">/ {listing.unit}</p>
-          </div>
+        {/* Pied : séparateur fin + CTA avec flèche qui glisse au survol */}
+        <div className="mt-auto flex items-center justify-between border-t border-border pt-3.5">
           <Link
             to={`/annonce/${listing.id}`}
-            className="rounded-xl bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-100"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 transition-colors hover:text-primary-800"
           >
             Voir l'offre
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

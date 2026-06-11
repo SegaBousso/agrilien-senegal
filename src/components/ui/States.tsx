@@ -10,12 +10,15 @@ export function Skeleton({ className }: { className?: string }) {
 /** Carte produit en chargement. */
 export function ListingCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-surface">
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft">
       <Skeleton className="aspect-[4/3] w-full" />
-      <div className="space-y-3 p-4">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-        <Skeleton className="h-8 w-full" />
+      <div className="p-4">
+        <Skeleton className="h-3 w-1/3" />
+        <Skeleton className="mt-2 h-4 w-3/4" />
+        <Skeleton className="mt-2 h-3 w-1/2" />
+        <div className="mt-4 border-t border-border pt-3.5">
+          <Skeleton className="h-4 w-24" />
+        </div>
       </div>
     </div>
   );
