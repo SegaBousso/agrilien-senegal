@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#16a34a" />
+
+    <title>AgriLien Sénégal — Connecter producteurs et acheteurs agricoles</title>
+    <meta
+      name="description"
+      content="AgriLien Sénégal met en relation les producteurs agricoles sénégalais et les acheteurs. Trouvez des produits frais, locaux et de qualité partout au Sénégal."
+    />
+    <meta name="keywords" content="agriculture, Sénégal, producteurs, récoltes, produits frais, acheteurs, marché agricole" />
+    <link rel="canonical" href="https://agrilien.sn/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AgriLien Sénégal — Marché agricole en ligne" />
+    <meta
+      property="og:description"
+      content="La plateforme qui connecte producteurs et acheteurs de produits agricoles au Sénégal."
+    />
+    <meta property="og:locale" content="fr_SN" />
+    <meta property="og:url" content="https://agrilien.sn/" />
+    <meta property="og:image" content="https://agrilien.sn/og-image.jpg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AgriLien Sénégal" />
+    <meta name="twitter:description" content="La plateforme agricole sénégalaise." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Applique le thème avant le rendu pour éviter le flash (FOUC). -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('agrilien-theme');
+          if (!t) {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

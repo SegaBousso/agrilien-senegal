@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"console.log\\('TS in node_modules:', require\\('typescript'\\).version\\)\")",
+      "Bash(python \"C:\\\\Users\\\\segab\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"agriculture marketplace service local food produce clean professional trust\" --design-system -p \"AgriLien Senegal\")",
+      "Read(//c/Users/segab/.claude/plugins/cache/ui-ux-pro-max-skill/**)",
+      "Read(//c/Users/segab/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(python \"C:\\\\Users\\\\segab\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"agriculture marketplace local food produce trust clean professional\" --design-system -p \"AgriLien Senegal\")",
+      "Bash(python 'C:\\\\Users\\\\segab\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\\\\search.py' 'organic biophilic agriculture minimalism calm natural earthy' --domain style -n 3)",
+      "Bash(python 'C:\\\\Users\\\\segab\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\\\\search.py' 'natural organic humanist trustworthy readable calm' --domain typography -n 3)",
+      "Bash(python \"C:\\\\Users\\\\segab\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.5.0\\\\src\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"organic biophilic agriculture marketplace warm minimalism cream earthy\" --design-system --persist -p \"AgriLien Senegal\")",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git --version)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}
