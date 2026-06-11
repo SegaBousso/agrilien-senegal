@@ -7,6 +7,7 @@ import {
   MapPin,
   ShieldCheck,
   Sprout,
+  Star,
   TrendingUp,
   Truck,
   Users,
@@ -18,6 +19,8 @@ import { ListingCard } from '@/components/listings/ListingCard';
 import { ListingCardSkeleton, EmptyState } from '@/components/ui/States';
 import { useRecentListings } from '@/hooks/useListings';
 import { useCategories } from '@/hooks/useCatalog';
+import { formatPrice } from '@/lib/utils';
+import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 const ADVANTAGES = [
   {
@@ -76,49 +79,140 @@ export default function HomePage() {
         />
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-t from-primary-900/80 via-transparent to-transparent"
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-primary-900/85 via-transparent to-primary-900/20"
+        />
+        {/* Vignette pour la profondeur */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_30%_40%,transparent_45%,rgba(8,40,20,0.45))]"
         />
 
         <div className="container relative py-20 md:py-28 lg:py-32">
-          <div className="max-w-2xl">
-            <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium backdrop-blur">
-              <Sprout className="h-4 w-4 text-accent-300" /> Agriculture sénégalaise connectée
-            </span>
-            <h1 className="text-4xl font-extrabold leading-[1.1] drop-shadow-sm md:text-5xl lg:text-6xl">
-              Le marché agricole du Sénégal, <span className="text-accent-400">en un clic</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-primary-50/90 md:text-xl">
-              AgriLien relie les producteurs aux acheteurs pour réduire les pertes de récoltes et
-              garantir des produits frais, locaux et au juste prix.
-            </p>
+          <div className="grid items-center gap-12 xl:grid-cols-[minmax(0,1fr)_320px]">
+            {/* Colonne contenu */}
+            <div className="max-w-2xl">
+              <span
+                className="hero-reveal mb-5 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium ring-1 ring-white/20 backdrop-blur"
+                style={{ animationDelay: '0.05s' }}
+              >
+                <Sprout className="h-4 w-4 text-accent-300" /> Agriculture sénégalaise connectée
+              </span>
+              <h1
+                className="hero-reveal text-4xl font-extrabold leading-[1.1] drop-shadow-sm md:text-5xl lg:text-6xl"
+                style={{ animationDelay: '0.12s' }}
+              >
+                Le marché agricole du Sénégal, <span className="text-accent-400">en un clic</span>
+              </h1>
+              <p
+                className="hero-reveal mt-5 max-w-xl text-lg text-primary-50/90 md:text-xl"
+                style={{ animationDelay: '0.2s' }}
+              >
+                AgriLien relie les producteurs aux acheteurs pour réduire les pertes de récoltes et
+                garantir des produits frais, locaux et au juste prix.
+              </p>
 
-            {/* Recherche = CTA principal (modèle marketplace) */}
-            <div className="mt-8">
-              <HeroSearch />
+              {/* Recherche = CTA principal (modèle marketplace) */}
+              <div className="hero-reveal mt-8" style={{ animationDelay: '0.28s' }}>
+                <HeroSearch />
+              </div>
+
+              {/* Suggestions de recherche populaires */}
+              {categories && categories.length > 0 && (
+                <div
+                  className="hero-reveal mt-4 flex flex-wrap items-center gap-2 text-sm text-primary-50"
+                  style={{ animationDelay: '0.36s' }}
+                >
+                  <span className="opacity-80">Populaire :</span>
+                  {categories.slice(0, 4).map((c) => (
+                    <Link
+                      key={c.id}
+                      to={`/catalogue?categorie=${c.id}`}
+                      className="rounded-full bg-white/15 px-3 py-1 font-medium ring-1 ring-white/15 backdrop-blur transition hover:bg-white/25"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Preuve sociale : cluster d'avatars + lien producteur */}
+              <div
+                className="hero-reveal mt-8 flex flex-wrap items-center gap-x-6 gap-y-4"
+                style={{ animationDelay: '0.44s' }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2.5" aria-hidden>
+                    {['bg-accent-400 text-primary-900', 'bg-primary-400 text-primary-900', 'bg-amber-300 text-primary-900', 'bg-emerald-300 text-primary-900'].map(
+                      (cls, i) => (
+                        <span
+                          key={i}
+                          className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-primary-900 text-xs font-bold ${cls}`}
+                        >
+                          {['AD', 'MS', 'FN', 'OB'][i]}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                  <p className="text-sm text-primary-50/90">
+                    Producteurs &amp; acheteurs
+                    <br className="hidden sm:block" /> de tout le Sénégal
+                  </p>
+                </div>
+                <Link
+                  to="/inscription"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-300 transition hover:text-accent-200"
+                >
+                  Vous êtes producteur ? Publiez vos récoltes <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
 
-            {/* Suggestions de recherche populaires */}
-            {categories && categories.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-primary-50">
-                <span className="opacity-80">Populaire :</span>
-                {categories.slice(0, 4).map((c) => (
-                  <Link
-                    key={c.id}
-                    to={`/catalogue?categorie=${c.id}`}
-                    className="rounded-full bg-white/15 px-3 py-1 font-medium backdrop-blur transition hover:bg-white/25"
-                  >
-                    {c.name}
-                  </Link>
-                ))}
-              </div>
+            {/* Carte « à la une » — vraie annonce récente (desktop large) */}
+            {recent && recent[0] && (
+              <aside
+                className="hero-reveal hidden xl:block"
+                style={{ animationDelay: '0.5s' }}
+                aria-label="Annonce à la une"
+              >
+                <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/10 shadow-soft-lg backdrop-blur-md">
+                  <div className="flex items-center gap-1.5 px-4 pt-3 text-xs font-semibold uppercase tracking-wide text-accent-300">
+                    <Star className="h-3.5 w-3.5 fill-accent-300" /> À la une
+                  </div>
+                  <div className="mt-2 px-3">
+                    <div className="overflow-hidden rounded-xl">
+                      <img
+                        src={
+                          recent[0].images?.find((i) => i.is_main)?.image_url ??
+                          recent[0].images?.[0]?.image_url ??
+                          PLACEHOLDER_IMAGE
+                        }
+                        alt={recent[0].title}
+                        loading="lazy"
+                        className="h-40 w-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div className="px-4 pb-4 pt-3">
+                    <h3 className="truncate font-display font-semibold text-white">{recent[0].title}</h3>
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-primary-50/80">
+                      <MapPin className="h-3.5 w-3.5" /> {recent[0].region}
+                    </p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="font-display text-lg font-bold text-white">
+                        {formatPrice(recent[0].price)}
+                        <span className="text-xs font-normal text-primary-50/70">/{recent[0].unit}</span>
+                      </span>
+                      <Link
+                        to={`/annonce/${recent[0].id}`}
+                        className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold ring-1 ring-white/20 transition hover:bg-white/30"
+                      >
+                        Voir l'offre
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </aside>
             )}
-
-            <Link
-              to="/inscription"
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-300 hover:text-accent-200"
-            >
-              Vous êtes producteur ? Publiez vos récoltes <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
         </div>
 
