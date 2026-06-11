@@ -8,11 +8,13 @@ import {
   Lock,
   MapPin,
   Phone,
+  Search,
   ShieldCheck,
   Sprout,
   Star,
   TrendingUp,
   Truck,
+  UserPlus,
   Users,
 } from 'lucide-react';
 import { Seo } from '@/components/Seo';
@@ -49,9 +51,9 @@ const ADVANTAGES = [
 ];
 
 const STEPS = [
-  { num: '1', title: 'Créez votre compte', text: 'Inscrivez-vous en tant que producteur ou acheteur en quelques minutes.' },
-  { num: '2', title: 'Publiez ou recherchez', text: 'Les producteurs publient leurs récoltes, les acheteurs filtrent et trouvent.' },
-  { num: '3', title: 'Entrez en contact', text: 'Envoyez une demande d\'achat et finalisez la transaction directement.' },
+  { num: '1', icon: UserPlus, title: 'Créez votre compte', text: 'Inscrivez-vous en tant que producteur ou acheteur en quelques minutes.' },
+  { num: '2', icon: Search, title: 'Publiez ou recherchez', text: 'Les producteurs publient leurs récoltes, les acheteurs filtrent et trouvent.' },
+  { num: '3', icon: Handshake, title: 'Entrez en contact', text: 'Envoyez une demande d\'achat et finalisez la transaction directement.' },
 ];
 
 const TRUST_POINTS = [
@@ -335,23 +337,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* COMMENT ÇA MARCHE */}
-      <section className="bg-gray-50 py-16">
+      {/* COMMENT ÇA MARCHE — stepper connecté */}
+      <section className="bg-gray-50 py-20">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Comment ça marche&nbsp;?</h2>
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+              En 3 étapes
+            </span>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">Comment ça marche&nbsp;?</h2>
             <p className="mt-3 text-gray-600">Trois étapes simples pour vendre ou acheter.</p>
           </div>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+
+          <ol className="relative mt-16 grid gap-12 md:grid-cols-3 md:gap-8">
+            {/* Ligne de connexion (desktop uniquement) */}
+            <div
+              aria-hidden
+              className="absolute left-[16.666%] right-[16.666%] top-7 hidden h-0.5 bg-gradient-to-r from-primary-200 via-primary-300 to-primary-200 md:block"
+            />
+
             {STEPS.map((s) => (
-              <div key={s.num} className="relative rounded-2xl bg-surface p-8 text-center shadow-sm">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-2xl font-bold text-white">
+              <li key={s.num} className="group relative flex flex-col items-center text-center">
+                {/* Nœud numéroté sur la ligne */}
+                <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 font-display text-xl font-bold text-white shadow-soft ring-4 ring-gray-50 transition-transform duration-200 group-hover:scale-105">
                   {s.num}
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-gray-900">{s.title}</h3>
-                <p className="mt-2 text-sm text-gray-600">{s.text}</p>
-              </div>
+
+                {/* Carte */}
+                <div className="mt-6 w-full rounded-2xl border border-border bg-surface p-7 shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-soft-lg">
+                  <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-colors duration-200 group-hover:bg-primary-600 group-hover:text-white">
+                    <s.icon className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-5 text-lg font-semibold text-gray-900">{s.title}</h3>
+                  <p className="mt-2 text-sm text-gray-600">{s.text}</p>
+                </div>
+              </li>
             ))}
+          </ol>
+
+          <div className="mt-12 text-center">
+            <Link to="/inscription">
+              <Button size="lg">
+                Commencer maintenant <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
