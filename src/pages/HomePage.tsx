@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   CheckCircle2,
+  Clock,
+  Handshake,
+  MapPin,
   ShieldCheck,
   Sprout,
   TrendingUp,
@@ -56,23 +59,39 @@ export default function HomePage() {
         description="AgriLien Sénégal connecte producteurs agricoles et acheteurs. Trouvez des produits frais, locaux et de qualité partout au Sénégal."
       />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-600 to-primary-800 text-white">
-        <div className="absolute inset-0 opacity-10" aria-hidden>
-          <Sprout className="absolute -right-10 -top-10 h-72 w-72" />
-        </div>
-        <div className="container relative grid gap-10 py-16 md:grid-cols-2 md:py-24">
-          <div className="flex flex-col justify-center">
-            <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium">
+      {/* HERO — image plein cadre + voile vert */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-primary-800 to-primary-900 text-white">
+        {/* Photo de fond (décorative). Le dégradé ci-dessus sert de secours. */}
+        <img
+          src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1920&q=80"
+          alt=""
+          aria-hidden
+          fetchPriority="high"
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+        />
+        {/* Voiles dégradés : lisibilité du texte à gauche, profondeur en bas */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-primary-900/95 via-primary-900/80 to-primary-900/40"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-primary-900/80 via-transparent to-transparent"
+        />
+
+        <div className="container relative py-20 md:py-28 lg:py-32">
+          <div className="max-w-2xl">
+            <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium backdrop-blur">
               <Sprout className="h-4 w-4 text-accent-300" /> Agriculture sénégalaise connectée
             </span>
-            <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
+            <h1 className="text-4xl font-extrabold leading-[1.1] drop-shadow-sm md:text-5xl lg:text-6xl">
               Le marché agricole du Sénégal, <span className="text-accent-400">en un clic</span>
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-primary-50">
+            <p className="mt-5 max-w-xl text-lg text-primary-50/90 md:text-xl">
               AgriLien relie les producteurs aux acheteurs pour réduire les pertes de récoltes et
               garantir des produits frais, locaux et au juste prix.
             </p>
+
             {/* Recherche = CTA principal (modèle marketplace) */}
             <div className="mt-8">
               <HeroSearch />
@@ -86,7 +105,7 @@ export default function HomePage() {
                   <Link
                     key={c.id}
                     to={`/catalogue?categorie=${c.id}`}
-                    className="rounded-full bg-white/15 px-3 py-1 font-medium transition hover:bg-white/25"
+                    className="rounded-full bg-white/15 px-3 py-1 font-medium backdrop-blur transition hover:bg-white/25"
                   >
                     {c.name}
                   </Link>
@@ -96,26 +115,28 @@ export default function HomePage() {
 
             <Link
               to="/inscription"
-              className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-300 hover:text-accent-200"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-300 hover:text-accent-200"
             >
               Vous êtes producteur ? Publiez vos récoltes <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+        </div>
 
-          <div className="hidden items-center justify-center md:flex">
-            <div className="grid w-full max-w-md grid-cols-2 gap-4">
-              {[
-                { value: '14', label: 'Régions couvertes' },
-                { value: '100%', label: 'Produits locaux' },
-                { value: '0', label: 'Intermédiaire' },
-                { value: '24/7', label: 'Accessible' },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-2xl bg-white/10 p-6 backdrop-blur">
-                  <p className="text-3xl font-extrabold text-accent-400">{stat.value}</p>
-                  <p className="mt-1 text-sm text-primary-50">{stat.label}</p>
-                </div>
-              ))}
-            </div>
+        {/* Bande de stats (preuve sociale) */}
+        <div className="relative border-t border-white/15 bg-primary-900/40 backdrop-blur-sm">
+          <div className="container flex flex-wrap items-center gap-x-8 gap-y-3 py-4 text-sm font-medium text-primary-50">
+            <span className="inline-flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-accent-300" /> 14 régions couvertes
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Sprout className="h-4 w-4 text-accent-300" /> 100 % produits locaux
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Handshake className="h-4 w-4 text-accent-300" /> 0 intermédiaire
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Clock className="h-4 w-4 text-accent-300" /> Accessible 24/7
+            </span>
           </div>
         </div>
       </section>
