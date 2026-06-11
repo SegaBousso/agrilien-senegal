@@ -3,19 +3,19 @@ import { Link, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  ArrowLeft,
+  BadgeCheck,
   CalendarDays,
+  ChevronRight,
   Heart,
   MapPin,
   Package,
   Phone,
+  ShieldCheck,
   Sprout,
   Truck,
-  User,
 } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Field, Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner, ErrorState } from '@/components/ui/States';
@@ -25,7 +25,7 @@ import { useCreatePurchaseRequest } from '@/hooks/useRequests';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { purchaseRequestSchema, type PurchaseRequestInput } from '@/lib/validations';
-import { cn, formatDate, formatPrice, formatQuantity } from '@/lib/utils';
+import { cn, formatDate, formatPrice, formatQuantity, initials } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 export default function ListingDetailPage() {
@@ -59,20 +59,45 @@ export default function ListingDetailPage() {
     : [{ id: 'ph', image_url: PLACEHOLDER_IMAGE, is_main: true, listing_id: '', created_at: '' }];
   const isFavorite = (favoriteIds ?? []).includes(listing.id);
   const isBuyer = role === 'buyer';
+  const farmName = listing.producer?.farm_name ?? 'Producteur';
 
   return (
     <>
       <Seo title={listing.title} description={listing.description ?? `${listing.title} disponible à ${listing.region}.`} />
 
       <div className="container py-8">
-        <Link to="/catalogue" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-primary-700">
-          <ArrowLeft className="h-4 w-4" /> Retour au catalogue
-        </Link>
+        {/* Fil d'Ariane */}
+        <nav aria-label="Fil d'Ariane" className="mb-5 flex items-center gap-1.5 text-sm text-gray-500">
+          <Link to="/" className="transition-colors hover:text-primary-700">
+            Accueil
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <Link to="/catalogue" className="transition-colors hover:text-primary-700">
+            Catalogue
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate font-medium text-gray-700">{listing.title}</span>
+        </nav>
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        {/* En-tête */}
+        <div className="mb-6">
+          {listing.category && (
+            <span className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+              {listing.category.name}
+            </span>
+          )}
+          <h1 className="mt-3 text-3xl font-bold leading-tight text-gray-900 md:text-4xl">{listing.title}</h1>
+          <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-500">
+            <MapPin className="h-4 w-4" /> {listing.region}
+            {listing.locality ? ` · ${listing.locality}` : ''}
+          </p>
+        </div>
+
+        {/* Galerie + panneau d'achat */}
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           {/* Galerie */}
           <div>
-            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-surface">
+            <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft">
               <img
                 src={images[activeImage]?.image_url}
                 alt={listing.title}
@@ -86,8 +111,10 @@ export default function ListingDetailPage() {
                     key={img.id}
                     onClick={() => setActiveImage(i)}
                     className={cn(
-                      'h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2',
-                      i === activeImage ? 'border-primary-600' : 'border-transparent',
+                      'h-20 w-20 shrink-0 overflow-hidden rounded-xl ring-2 transition-all',
+                      i === activeImage
+                        ? 'ring-primary-600 ring-offset-2 ring-offset-background'
+                        : 'ring-transparent hover:ring-primary-200',
                     )}
                     aria-label={`Image ${i + 1}`}
                   >
@@ -98,81 +125,105 @@ export default function ListingDetailPage() {
             )}
           </div>
 
-          {/* Infos */}
-          <div>
-            {listing.category && (
-              <Badge className="bg-primary-50 text-primary-700">{listing.category.name}</Badge>
-            )}
-            <h1 className="mt-3 text-3xl font-bold text-gray-900">{listing.title}</h1>
-
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-primary-700">{formatPrice(listing.price)}</span>
-              <span className="text-gray-500">/ {listing.unit}</span>
-            </div>
-
-            <dl className="mt-6 grid grid-cols-2 gap-4">
-              <Info icon={Package} label="Quantité disponible" value={formatQuantity(listing.quantity, listing.unit)} />
-              <Info icon={MapPin} label="Localisation" value={`${listing.region}${listing.locality ? ` · ${listing.locality}` : ''}`} />
-              <Info icon={CalendarDays} label="Disponible le" value={formatDate(listing.availability_date)} />
-              <Info icon={Truck} label="Livraison" value={listing.delivery_option ?? 'À convenir'} />
-            </dl>
-
-            {listing.description && (
-              <div className="mt-6">
-                <h2 className="font-semibold text-gray-900">Description</h2>
-                <p className="mt-2 whitespace-pre-line text-gray-600">{listing.description}</p>
+          {/* Panneau d'achat (sticky desktop) */}
+          <div className="lg:sticky lg:top-24">
+            <div className="rounded-2xl border border-border bg-surface p-6 shadow-soft">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-4xl font-extrabold tracking-tight text-primary-700">
+                  {formatPrice(listing.price)}
+                </span>
+                <span className="text-gray-500">/ {listing.unit}</span>
               </div>
-            )}
 
-            {/* Producteur */}
-            <div className="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-5">
-              <h2 className="flex items-center gap-2 font-semibold text-gray-900">
-                <Sprout className="h-5 w-5 text-primary-600" /> Producteur
-              </h2>
-              <div className="mt-3 space-y-1.5 text-sm text-gray-600">
-                <p className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span className="font-medium text-gray-900">{listing.producer?.farm_name}</span>
-                  {listing.producer?.profile?.full_name && <span>· {listing.producer.profile.full_name}</span>}
-                </p>
-                <p className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-gray-400" /> {listing.producer?.region}
-                  {listing.producer?.commune ? ` · ${listing.producer.commune}` : ''}
-                </p>
-              </div>
-            </div>
+              <dl className="mt-6 grid grid-cols-2 gap-3">
+                <Info icon={Package} label="Quantité" value={formatQuantity(listing.quantity, listing.unit)} />
+                <Info icon={MapPin} label="Localisation" value={`${listing.region}${listing.locality ? ` · ${listing.locality}` : ''}`} />
+                <Info icon={CalendarDays} label="Disponible le" value={formatDate(listing.availability_date)} />
+                <Info icon={Truck} label="Livraison" value={listing.delivery_option ?? 'À convenir'} />
+              </dl>
 
-            {/* Actions */}
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              {session ? (
-                isBuyer ? (
-                  <>
-                    <Button size="lg" className="flex-1" onClick={() => setRequestOpen(true)}>
-                      <Phone className="h-5 w-5" /> Envoyer une demande
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => toggleFav.mutate({ listingId: listing.id, isFavorite })}
-                    >
-                      <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
-                      {isFavorite ? 'Sauvegardé' : 'Favori'}
-                    </Button>
-                  </>
+              {/* Actions */}
+              <div className="mt-6 flex flex-col gap-3">
+                {session ? (
+                  isBuyer ? (
+                    <>
+                      <Button size="lg" className="w-full" onClick={() => setRequestOpen(true)}>
+                        <Phone className="h-5 w-5" /> Envoyer une demande
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => toggleFav.mutate({ listingId: listing.id, isFavorite })}
+                      >
+                        <Heart className={cn('h-5 w-5', isFavorite && 'fill-red-500 text-red-500')} />
+                        {isFavorite ? 'Retiré des favoris' : 'Ajouter aux favoris'}
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="rounded-xl bg-accent-50 px-4 py-3 text-sm text-accent-600">
+                      Connectez-vous avec un compte acheteur pour contacter ce producteur.
+                    </p>
+                  )
                 ) : (
-                  <p className="rounded-xl bg-accent-50 px-4 py-3 text-sm text-accent-600">
-                    Connectez-vous avec un compte acheteur pour contacter ce producteur.
-                  </p>
-                )
-              ) : (
-                <Link to="/connexion" state={{ from: `/annonce/${listing.id}` }} className="flex-1">
-                  <Button size="lg" className="w-full">
-                    Connectez-vous pour contacter le producteur
-                  </Button>
-                </Link>
-              )}
+                  <Link to="/connexion" state={{ from: `/annonce/${listing.id}` }}>
+                    <Button size="lg" className="w-full">
+                      Connectez-vous pour contacter le producteur
+                    </Button>
+                  </Link>
+                )}
+              </div>
+
+              {/* Confiance */}
+              <div className="mt-5 flex items-center gap-2 border-t border-border pt-4 text-sm text-gray-600">
+                <ShieldCheck className="h-5 w-5 shrink-0 text-primary-600" />
+                Annonce vérifiée par l'équipe AgriLien
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Description + producteur */}
+        <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Description</h2>
+            {listing.description ? (
+              <p className="mt-3 whitespace-pre-line leading-relaxed text-gray-600">{listing.description}</p>
+            ) : (
+              <p className="mt-3 text-gray-500">Aucune description fournie pour cette annonce.</p>
+            )}
+          </div>
+
+          {/* Producteur */}
+          <aside>
+            <div className="rounded-2xl border border-border bg-surface p-6 shadow-soft">
+              <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                <Sprout className="h-4 w-4 text-primary-600" /> Le producteur
+              </h2>
+              <div className="mt-4 flex items-center gap-3">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-100 font-display text-lg font-bold text-primary-700">
+                  {initials(farmName)}
+                </span>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1 truncate font-semibold text-gray-900">
+                    {farmName}
+                    <BadgeCheck className="h-4 w-4 shrink-0 text-primary-600" />
+                  </p>
+                  {listing.producer?.profile?.full_name && (
+                    <p className="truncate text-sm text-gray-500">{listing.producer.profile.full_name}</p>
+                  )}
+                </div>
+              </div>
+              <p className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                <MapPin className="h-4 w-4 text-gray-400" />
+                {listing.producer?.region}
+                {listing.producer?.commune ? ` · ${listing.producer.commune}` : ''}
+              </p>
+              {listing.producer?.description && (
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">{listing.producer.description}</p>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
 
@@ -205,9 +256,9 @@ function Info({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-surface p-3">
+    <div className="rounded-xl border border-border bg-surface-muted p-3">
       <dt className="flex items-center gap-1.5 text-xs text-gray-500">
-        <Icon className="h-3.5 w-3.5" /> {label}
+        <Icon className="h-3.5 w-3.5 text-primary-600" /> {label}
       </dt>
       <dd className="mt-1 text-sm font-semibold text-gray-900">{value}</dd>
     </div>

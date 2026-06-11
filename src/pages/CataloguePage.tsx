@@ -10,6 +10,7 @@ import { usePublicListings } from '@/hooks/useListings';
 import { useCategories, useRegions } from '@/hooks/useCatalog';
 import { useFavoriteIds } from '@/hooks/useFavorites';
 import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils';
 import type { ListingFilters } from '@/services/listings.service';
 
 const PAGE_SIZE = 12;
@@ -62,60 +63,104 @@ export default function CataloguePage() {
 
   const favSet = new Set(favoriteIds ?? []);
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
-  const activeFilterCount = ['categorie', 'region', 'prixMin', 'prixMax', 'qteMin'].filter((k) =>
-    params.get(k),
-  ).length;
+  const activeCategory = params.get('categorie') ?? '';
+
+  // Puces de filtres actifs (supprimables).
+  const activeChips: { key: string; label: string }[] = [];
+  if (params.get('q')) activeChips.push({ key: 'q', label: `« ${params.get('q')} »` });
+  if (activeCategory) {
+    activeChips.push({
+      key: 'categorie',
+      label: categories?.find((c) => c.id === activeCategory)?.name ?? 'Catégorie',
+    });
+  }
+  if (params.get('region')) activeChips.push({ key: 'region', label: params.get('region')! });
+  if (params.get('prixMin')) activeChips.push({ key: 'prixMin', label: `≥ ${params.get('prixMin')} FCFA` });
+  if (params.get('prixMax')) activeChips.push({ key: 'prixMax', label: `≤ ${params.get('prixMax')} FCFA` });
+  if (params.get('qteMin')) activeChips.push({ key: 'qteMin', label: `Qté ≥ ${params.get('qteMin')}` });
+
+  const removeChip = (key: string) => {
+    if (key === 'q') setSearchInput('');
+    setParam(key, '');
+  };
 
   return (
     <>
       <Seo title="Catalogue" description="Parcourez et filtrez les annonces de produits agricoles frais au Sénégal." />
 
-      <div className="bg-gray-50">
+      {/* En-tête */}
+      <div className="border-b border-border bg-gray-50">
         <div className="container py-8">
-          <h1 className="text-3xl font-bold text-gray-900">Catalogue des produits</h1>
-          <p className="mt-2 text-gray-600">
-            {data ? `${data.total} annonce${data.total > 1 ? 's' : ''} disponible${data.total > 1 ? 's' : ''}` : 'Recherchez parmi les récoltes disponibles'}
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+            <Search className="h-3.5 w-3.5" /> Catalogue
+          </span>
+          <h1 className="mt-3 text-3xl font-bold text-gray-900">Le marché agricole, à portée de clic</h1>
+          <p className="mt-1.5 text-gray-600">
+            {data
+              ? `${data.total} annonce${data.total > 1 ? 's' : ''} fraîche${data.total > 1 ? 's' : ''} disponible${data.total > 1 ? 's' : ''}`
+              : 'Recherchez parmi les récoltes disponibles'}
           </p>
 
-          {/* Barre de recherche */}
+          {/* Recherche */}
           <form onSubmit={submitSearch} className="mt-5 flex gap-2">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <Input
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Rechercher un produit (mangue, mil, oignon…)"
-                className="pl-11"
+                className="h-12 pl-12 text-base"
                 aria-label="Rechercher"
               />
             </div>
-            <Button type="submit">Rechercher</Button>
+            <Button type="submit" size="lg" className="shrink-0">
+              Rechercher
+            </Button>
             <Button
               type="button"
               variant="outline"
+              size="lg"
               onClick={() => setShowFilters((v) => !v)}
-              className="lg:hidden"
+              className="shrink-0 lg:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              {activeFilterCount > 0 && (
+              {activeChips.length > 0 && (
                 <span className="ml-1 rounded-full bg-primary-600 px-1.5 text-xs text-white">
-                  {activeFilterCount}
+                  {activeChips.length}
                 </span>
               )}
             </Button>
           </form>
+
+          {/* Puces catégories — accès rapide */}
+          {categories && categories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <CategoryPill active={!activeCategory} onClick={() => setParam('categorie', '')}>
+                Toutes
+              </CategoryPill>
+              {categories.map((c) => (
+                <CategoryPill
+                  key={c.id}
+                  active={activeCategory === c.id}
+                  onClick={() => setParam('categorie', activeCategory === c.id ? '' : c.id)}
+                >
+                  {c.name}
+                </CategoryPill>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="container grid gap-8 py-8 lg:grid-cols-[260px_1fr]">
         {/* Filtres */}
         <aside className={showFilters ? 'block' : 'hidden lg:block'}>
-          <div className="sticky top-20 space-y-5 rounded-2xl border border-gray-100 bg-surface p-5 shadow-sm">
+          <div className="sticky top-20 space-y-5 rounded-2xl border border-border bg-surface p-5 shadow-soft">
             <div className="flex items-center justify-between">
               <h2 className="flex items-center gap-2 font-semibold text-gray-900">
-                <Filter className="h-4 w-4" /> Filtres
+                <Filter className="h-4 w-4 text-primary-600" /> Filtres
               </h2>
-              {activeFilterCount > 0 && (
+              {activeChips.length > 0 && (
                 <button onClick={clearAll} className="text-xs font-medium text-primary-700 hover:underline">
                   Réinitialiser
                 </button>
@@ -123,7 +168,7 @@ export default function CataloguePage() {
             </div>
 
             <FilterBlock label="Catégorie">
-              <Select value={params.get('categorie') ?? ''} onChange={(e) => setParam('categorie', e.target.value)}>
+              <Select value={activeCategory} onChange={(e) => setParam('categorie', e.target.value)}>
                 <option value="">Toutes</option>
                 {categories?.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -180,10 +225,24 @@ export default function CataloguePage() {
 
         {/* Résultats */}
         <section>
-          <div className="mb-5 flex items-center justify-between">
-            <p className="text-sm text-gray-500">
-              {data && `Page ${page} sur ${totalPages}`}
-            </p>
+          {/* Barre : tri + filtres actifs */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {activeChips.length > 0 ? (
+                activeChips.map((chip) => (
+                  <button
+                    key={chip.key}
+                    onClick={() => removeChip(chip.key)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 py-1 pl-3 pr-2 text-sm font-medium text-primary-700 ring-1 ring-primary-100 transition hover:bg-primary-100"
+                  >
+                    {chip.label}
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">{data && `Page ${page} sur ${totalPages}`}</p>
+              )}
+            </div>
             <Select
               value={params.get('tri') ?? 'recent'}
               onChange={(e) => setParam('tri', e.target.value)}
@@ -252,6 +311,31 @@ export default function CataloguePage() {
         </section>
       </div>
     </>
+  );
+}
+
+function CategoryPill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        'rounded-full px-4 py-1.5 text-sm font-medium transition-colors',
+        active
+          ? 'bg-primary-600 text-white shadow-soft'
+          : 'border border-border bg-surface text-gray-700 hover:border-primary-300 hover:text-primary-700',
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
