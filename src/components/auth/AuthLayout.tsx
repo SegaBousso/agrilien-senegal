@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Logo } from '@/components/layout/Logo';
+import { cn } from '@/lib/utils';
 
 const BULLETS = [
   'Annonces vérifiées avant publication',
@@ -12,10 +13,15 @@ const BULLETS = [
  * Coquille d'authentification en split : panneau de marque (visuel) à gauche,
  * contenu du formulaire à droite. Partagée par Connexion et Inscription.
  */
-export function AuthLayout({ children }: { children: ReactNode }) {
+export function AuthLayout({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   return (
     <div className="container py-10 lg:py-16">
-      <div className="mx-auto grid max-w-4xl overflow-hidden rounded-3xl border border-border bg-surface shadow-soft-lg md:grid-cols-2">
+      <div
+        className={cn(
+          'mx-auto grid overflow-hidden rounded-3xl border border-border bg-surface shadow-soft-lg',
+          wide ? 'max-w-5xl md:grid-cols-[0.8fr_1.2fr]' : 'max-w-4xl md:grid-cols-2',
+        )}
+      >
         {/* Panneau de marque (desktop) */}
         <aside className="relative hidden flex-col justify-between overflow-hidden bg-primary-800 p-9 text-white md:flex">
           <img
