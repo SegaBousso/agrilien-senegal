@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
+  BadgeCheck,
   CheckCircle2,
   Clock,
   Handshake,
+  Lock,
   MapPin,
+  Phone,
   ShieldCheck,
   Sprout,
   Star,
@@ -49,6 +52,29 @@ const STEPS = [
   { num: '1', title: 'Créez votre compte', text: 'Inscrivez-vous en tant que producteur ou acheteur en quelques minutes.' },
   { num: '2', title: 'Publiez ou recherchez', text: 'Les producteurs publient leurs récoltes, les acheteurs filtrent et trouvent.' },
   { num: '3', title: 'Entrez en contact', text: 'Envoyez une demande d\'achat et finalisez la transaction directement.' },
+];
+
+const TRUST_POINTS = [
+  {
+    icon: ShieldCheck,
+    title: 'Annonces vérifiées',
+    text: 'Chaque annonce est contrôlée par notre équipe avant sa publication.',
+  },
+  {
+    icon: BadgeCheck,
+    title: 'Producteurs identifiés',
+    text: "Nom de l'exploitation, région et commune affichés pour chaque vendeur.",
+  },
+  {
+    icon: Phone,
+    title: 'Contact direct',
+    text: 'Échangez directement avec le producteur, sans intermédiaire ni commission.',
+  },
+  {
+    icon: Lock,
+    title: 'Données protégées',
+    text: 'Vos informations restent sécurisées et leur accès est strictement contrôlé.',
+  },
 ];
 
 export default function HomePage() {
@@ -330,8 +356,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CONFIANCE & SÉCURITÉ */}
       <section className="container py-16">
+        <div className="grid gap-10 rounded-3xl border border-border bg-surface p-8 shadow-soft md:grid-cols-2 md:p-12">
+          <div className="flex flex-col justify-center">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-700">
+              <ShieldCheck className="h-4 w-4" /> Confiance &amp; sécurité
+            </span>
+            <h2 className="mt-4 text-3xl font-bold text-gray-900">
+              Acheter et vendre en toute confiance
+            </h2>
+            <p className="mt-3 text-gray-600">
+              AgriLien protège producteurs et acheteurs à chaque étape. Des annonces fiables, des
+              vendeurs identifiés et un contact direct — pour des transactions sereines.
+            </p>
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-primary-100 bg-primary-50/60 p-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white">
+                <BadgeCheck className="h-5 w-5" />
+              </span>
+              <p className="text-sm text-gray-700">
+                <strong className="font-semibold text-gray-900">100 % des annonces</strong> sont
+                modérées avant d'apparaître au catalogue.
+              </p>
+            </div>
+          </div>
+
+          <ul className="grid gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+            {TRUST_POINTS.map((point) => (
+              <li key={point.title} className="flex gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                  <point.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{point.title}</h3>
+                  <p className="mt-1 text-sm text-gray-600">{point.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="container pb-16">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-14 text-center text-white md:px-16">
           <h2 className="text-3xl font-bold">Prêt à rejoindre AgriLien&nbsp;?</h2>
           <p className="mx-auto mt-3 max-w-xl text-primary-50">
