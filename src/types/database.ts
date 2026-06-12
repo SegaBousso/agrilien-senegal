@@ -125,6 +125,32 @@ export interface Notification {
   created_at: string;
 }
 
+export type PaymentStatus =
+  | 'initie'
+  | 'en_attente'
+  | 'paye'
+  | 'echoue'
+  | 'annule'
+  | 'rembourse';
+
+export interface Transaction {
+  id: string;
+  ref_command: string;
+  request_id: string | null;
+  buyer_id: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  payment_method: string | null;
+  token: string | null;
+  client_phone: string | null;
+  status: PaymentStatus;
+  env: string;
+  created_at: string;
+  updated_at: string;
+  paid_at: string | null;
+}
+
 /** Annonce enrichie avec ses relations (jointures fréquentes). */
 export interface ListingWithRelations extends Listing {
   category: ProductCategory | null;

@@ -10,6 +10,7 @@ import AboutPage from '@/pages/AboutPage';
 import CataloguePage from '@/pages/CataloguePage';
 import ListingDetailPage from '@/pages/ListingDetailPage';
 import ContactPage from '@/pages/ContactPage';
+import PaymentResultPage from '@/pages/PaymentResultPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import NotFoundPage from '@/pages/NotFoundPage';
@@ -44,6 +45,8 @@ export default function App() {
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/paiement/succes" element={<PaymentResultPage status="success" />} />
+          <Route path="/paiement/annule" element={<PaymentResultPage status="cancel" />} />
         </Route>
 
         {/* Authentification (sans layout dashboard) */}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Send } from 'lucide-react';
+import { CheckCircle2, CreditCard, Send } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -7,13 +7,30 @@ import { EmptyState, Spinner } from '@/components/ui/States';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyRequests } from '@/hooks/useRequests';
+import { useInitiatePayment, useMyTransactions } from '@/hooks/usePayment';
 import { useAuth } from '@/context/AuthContext';
-import { formatRelative } from '@/lib/utils';
+import { useToast } from '@/context/ToastContext';
+import { formatPrice, formatRelative } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 export default function BuyerRequests() {
   const { session } = useAuth();
+  const { toast } = useToast();
   const { data: requests, isLoading } = useMyRequests(session?.user.id);
+  const { data: transactions } = useMyTransactions(!!session?.user.id);
+  const initiate = useInitiatePayment();
+
+  // Demandes déjà payées (transaction au statut « paye »).
+  const paidRequestIds = new Set(
+    (transactions ?? []).filter((t) => t.status === 'paye').map((t) => t.request_id),
+  );
+
+  const handlePay = (requestId: string) => {
+    initiate.mutate(requestId, {
+      onError: (e) =>
+        toast(e instanceof Error ? e.message : 'Paiement impossible pour le moment.', 'error'),
+    });
+  };
 
   return (
     <>
@@ -47,6 +64,29 @@ export default function BuyerRequests() {
                     </p>
                     {r.message && <p className="mt-1 truncate text-xs text-gray-400">“{r.message}”</p>}
                   </div>
+
+                  {/* Action de paiement (demande acceptée). */}
+                  {r.status === 'acceptee' && r.listing && (
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {formatPrice(r.quantity_requested * r.listing.price)}
+                      </span>
+                      {paidRequestIds.has(r.id) ? (
+                        <span className="flex items-center gap-1 text-sm font-medium text-primary-700">
+                          <CheckCircle2 className="h-4 w-4" /> Payé
+                        </span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => handlePay(r.id)}
+                          disabled={initiate.isPending}
+                        >
+                          <CreditCard className="h-4 w-4" />
+                          {initiate.isPending ? 'Redirection…' : 'Payer'}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </CardBody>
               </Card>
             );
