@@ -14,12 +14,19 @@ export interface ListingFilters {
   pageSize?: number;
 }
 
+// Note sécurité : on n'expose PAS email/téléphone du producteur dans les charges
+// publiques (catalogue, détail). Le contact passe par le flux de demande d'achat.
 const LISTING_SELECT = `
   *,
   category:product_categories(*),
-  producer:producer_profiles(*, profile:profiles(full_name, phone, email)),
+  producer:producer_profiles(*, profile:profiles(full_name)),
   images:listing_images(*)
 `;
+
+/** Neutralise les métacaractères PostgREST/ILIKE pour éviter toute injection de filtre. */
+function sanitizeSearch(input: string): string {
+  return input.replace(/[^\p{L}\p{N}\s-]/gu, ' ').trim();
+}
 
 /** Catalogue public : annonces publiées, filtrées et paginées. */
 export async function fetchPublicListings(filters: ListingFilters = {}) {
@@ -33,7 +40,8 @@ export async function fetchPublicListings(filters: ListingFilters = {}) {
     .eq('status', 'publiee');
 
   if (filters.search) {
-    query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+    const term = sanitizeSearch(filters.search);
+    if (term) query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
   }
   if (filters.categoryId) query = query.eq('category_id', filters.categoryId);
   if (filters.region) query = query.eq('region', filters.region);

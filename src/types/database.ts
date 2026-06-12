@@ -128,7 +128,7 @@ export interface Notification {
 /** Annonce enrichie avec ses relations (jointures fréquentes). */
 export interface ListingWithRelations extends Listing {
   category: ProductCategory | null;
-  producer: ProducerProfile & { profile: Pick<Profile, 'full_name' | 'phone' | 'email'> };
+  producer: ProducerProfile & { profile: Pick<Profile, 'full_name'> };
   images: ListingImage[];
 }
 
