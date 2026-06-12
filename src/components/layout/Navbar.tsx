@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Heart, LayoutDashboard, LogOut, Menu, User, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
+import { NotificationBell } from './NotificationBell';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { initials } from '@/lib/utils';
@@ -64,6 +65,7 @@ export function Navbar() {
         {/* Actions desktop */}
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
+          {session && profile && <NotificationBell />}
           {session && profile ? (
             <div className="relative">
               <button
@@ -116,6 +118,7 @@ export function Navbar() {
 
         {/* Actions mobile */}
         <div className="flex items-center gap-1 md:hidden">
+          {session && profile && <NotificationBell />}
           <ThemeToggle />
           <button
             className="rounded-lg p-2 text-gray-700"
