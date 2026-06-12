@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
-  Clock,
   Handshake,
   Lock,
   MapPin,
@@ -114,6 +113,15 @@ export default function HomePage() {
           aria-hidden
           className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_30%_40%,transparent_45%,rgba(8,40,20,0.45))]"
         />
+        {/* Texture grain — finition « premium » (subtile) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
 
         <div className="container relative py-20 md:py-28 lg:py-32">
           <div className="grid items-center gap-12 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -126,16 +134,17 @@ export default function HomePage() {
                 <Sprout className="h-4 w-4 text-accent-300" /> Agriculture sénégalaise connectée
               </span>
               <h1
-                className="hero-reveal text-4xl font-extrabold leading-[1.1] drop-shadow-sm md:text-5xl lg:text-6xl"
+                className="hero-reveal text-balance text-4xl font-extrabold leading-[1.05] tracking-tight [text-shadow:0_2px_20px_rgba(0,0,0,0.25)] md:text-5xl lg:text-6xl"
                 style={{ animationDelay: '0.12s' }}
               >
-                Le marché agricole du Sénégal, <span className="text-accent-400">en un clic</span>
+                Tout le marché agricole du Sénégal,{' '}
+                <span className="text-accent-400">réuni en un seul endroit.</span>
               </h1>
               <p
-                className="hero-reveal mt-5 max-w-xl text-lg text-primary-50/90 md:text-xl"
+                className="hero-reveal mt-5 max-w-xl text-pretty text-lg text-primary-50/90 md:text-xl"
                 style={{ animationDelay: '0.2s' }}
               >
-                AgriLien relie les producteurs aux acheteurs pour réduire les pertes de récoltes et
+                AgriLien relie producteurs et acheteurs pour réduire les pertes de récoltes et
                 garantir des produits frais, locaux et au juste prix.
               </p>
 
@@ -181,10 +190,16 @@ export default function HomePage() {
                       ),
                     )}
                   </div>
-                  <p className="text-sm text-primary-50/90">
-                    Producteurs &amp; acheteurs
-                    <br className="hidden sm:block" /> de tout le Sénégal
-                  </p>
+                  <div>
+                    <div className="flex gap-0.5" aria-hidden>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className="h-3.5 w-3.5 fill-accent-400 text-accent-400" />
+                      ))}
+                    </div>
+                    <p className="mt-0.5 text-sm text-primary-50/90">
+                      Producteurs &amp; acheteurs de tout le Sénégal
+                    </p>
+                  </div>
                 </div>
                 <Link
                   to="/inscription"
@@ -244,21 +259,22 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Bande de stats (preuve sociale) */}
+        {/* Bande de métriques (preuve sociale) */}
         <div className="relative border-t border-white/15 bg-primary-900/40 backdrop-blur-sm">
-          <div className="container flex flex-wrap items-center gap-x-8 gap-y-3 py-4 text-sm font-medium text-primary-50">
-            <span className="inline-flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-accent-300" /> 14 régions couvertes
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Sprout className="h-4 w-4 text-accent-300" /> 100 % produits locaux
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Handshake className="h-4 w-4 text-accent-300" /> 0 intermédiaire
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Clock className="h-4 w-4 text-accent-300" /> Accessible 24/7
-            </span>
+          <div className="container flex flex-wrap items-center gap-x-10 gap-y-5 py-5">
+            {[
+              { value: '14', label: 'Régions couvertes' },
+              { value: '100%', label: 'Produits locaux' },
+              { value: '0', label: 'Commission' },
+              { value: '24/7', label: 'Accessible' },
+            ].map((m) => (
+              <div key={m.label}>
+                <p className="font-display text-2xl font-extrabold leading-none text-white md:text-3xl">
+                  {m.value}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-primary-50/70">{m.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
