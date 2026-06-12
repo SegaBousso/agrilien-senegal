@@ -58,7 +58,7 @@ async function sendOne(phone: string, text: string): Promise<{ ok: boolean; ref?
       },
       body: JSON.stringify({
         sender_name: Deno.env.get('SENDTEXT_SENDER_NAME') ?? 'AgriLien',
-        type: 'normal',
+        sms_type: 'normal',
         phone: normalized,
         text,
       }),
