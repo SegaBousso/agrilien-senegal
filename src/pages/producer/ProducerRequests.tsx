@@ -10,7 +10,7 @@ import { useMyListings } from '@/hooks/useListings';
 import { useReceivedRequests, useUpdateRequestStatus } from '@/hooks/useRequests';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { formatRelative } from '@/lib/utils';
+import { formatRelative, initials } from '@/lib/utils';
 import type { RequestStatus } from '@/types/database';
 
 export default function ProducerRequests() {
@@ -43,29 +43,37 @@ export default function ProducerRequests() {
             <Card key={r.id}>
               <CardBody>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-900">{r.listing?.title}</h3>
-                      <RequestStatusBadge status={r.status} />
-                    </div>
-                    <p className="mt-1 text-sm text-gray-600">
-                      <span className="font-medium">{r.buyer?.full_name}</span> souhaite{' '}
-                      <span className="font-medium">
-                        {r.quantity_requested} {r.listing?.unit}
-                      </span>{' '}
-                      · {formatRelative(r.created_at)}
-                    </p>
-                    {r.message && (
-                      <p className="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-sm text-gray-700">“{r.message}”</p>
-                    )}
-                    {r.buyer?.phone && (
-                      <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-primary-700">
-                        <Phone className="h-4 w-4" />
-                        <a href={`tel:${r.buyer.phone}`} className="font-medium hover:underline">
-                          {r.buyer.phone}
-                        </a>
+                  <div className="flex min-w-0 gap-3">
+                    {/* Avatar acheteur */}
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-100 font-display text-sm font-bold text-primary-700">
+                      {initials(r.buyer?.full_name ?? '?')}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-gray-900">{r.buyer?.full_name}</h3>
+                        <RequestStatusBadge status={r.status} />
+                      </div>
+                      <p className="mt-1 text-sm text-gray-600">
+                        souhaite{' '}
+                        <span className="font-medium text-gray-900">
+                          {r.quantity_requested} {r.listing?.unit}
+                        </span>{' '}
+                        de « {r.listing?.title} » · {formatRelative(r.created_at)}
                       </p>
-                    )}
+                      {r.message && (
+                        <p className="mt-2 rounded-xl border-l-2 border-primary-300 bg-muted px-3 py-2 text-sm italic text-gray-700">
+                          {r.message}
+                        </p>
+                      )}
+                      {r.buyer?.phone && (
+                        <a
+                          href={`tel:${r.buyer.phone}`}
+                          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary-700 hover:underline"
+                        >
+                          <Phone className="h-4 w-4" /> {r.buyer.phone}
+                        </a>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex shrink-0 gap-2">

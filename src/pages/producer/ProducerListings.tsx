@@ -50,9 +50,9 @@ export default function ProducerListings() {
       {isLoading ? (
         <Spinner />
       ) : listings && listings.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-surface shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
+            <thead className="border-b border-border bg-muted text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Produit</th>
                 <th className="hidden px-4 py-3 font-medium sm:table-cell">Quantité</th>
@@ -61,12 +61,12 @@ export default function ProducerListings() {
                 <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {listings.map((l) => {
                 const img =
                   l.images?.find((i) => i.is_main)?.image_url ?? l.images?.[0]?.image_url ?? PLACEHOLDER_IMAGE;
                 return (
-                  <tr key={l.id} className="hover:bg-gray-50/50">
+                  <tr key={l.id} className="transition-colors hover:bg-muted">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <img src={img} alt="" className="h-10 w-10 rounded-lg object-cover" />

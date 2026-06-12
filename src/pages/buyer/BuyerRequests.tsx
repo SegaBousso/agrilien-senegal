@@ -25,9 +25,12 @@ export default function BuyerRequests() {
       ) : requests && requests.length > 0 ? (
         <div className="space-y-4">
           {requests.map((r) => {
-            const img = r.listing?.images?.[0]?.image_url ?? PLACEHOLDER_IMAGE;
+            const img =
+              r.listing?.images?.find((i) => i.is_main)?.image_url ??
+              r.listing?.images?.[0]?.image_url ??
+              PLACEHOLDER_IMAGE;
             return (
-              <Card key={r.id}>
+              <Card key={r.id} className="hover:shadow-md">
                 <CardBody className="flex items-center gap-4">
                   <Link to={`/annonce/${r.listing?.id}`} className="shrink-0">
                     <img src={img} alt="" className="h-16 w-16 rounded-xl object-cover" />

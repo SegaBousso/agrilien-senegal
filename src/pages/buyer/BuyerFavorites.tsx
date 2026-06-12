@@ -13,7 +13,14 @@ export default function BuyerFavorites() {
   return (
     <>
       <Seo title="Mes favoris" />
-      <PageHeader title="Mes favoris" description="Les annonces que vous avez sauvegardées." />
+      <PageHeader
+        title="Mes favoris"
+        description={
+          favorites && favorites.length > 0
+            ? `${favorites.length} annonce${favorites.length > 1 ? 's' : ''} sauvegardée${favorites.length > 1 ? 's' : ''}.`
+            : 'Les annonces que vous avez sauvegardées.'
+        }
+      />
 
       {isLoading ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
