@@ -64,8 +64,8 @@ export default function ProducerDashboard() {
               accent="bg-primary-50 text-primary-600"
             />
             <StatCard
-              label="Pertes évitées"
-              value={formatQuantity(impact.pertes_evitees_kg, 'kg')}
+              label="Pertes évitées (vendu)"
+              value={formatQuantity(impact.pertes_evitees_kg, 'unités')}
               icon={<Leaf className="h-5 w-5" />}
               accent="bg-primary-50 text-primary-600"
             />

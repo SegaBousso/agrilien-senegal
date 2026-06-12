@@ -64,8 +64,8 @@ export default function AdminStats() {
           <h2 className="mb-3 font-display text-lg font-semibold text-gray-900">Impact</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="Pertes évitées"
-              value={formatQuantity(impact.pertes_evitees_kg, 'kg')}
+              label="Pertes évitées (vendu)"
+              value={formatQuantity(impact.pertes_evitees_kg, 'unités')}
               icon={<Leaf className="h-5 w-5" />}
               accent="bg-primary-50 text-primary-600"
             />
@@ -110,7 +110,7 @@ export default function AdminStats() {
                 {volumeByCategory.length > 0 ? (
                   <BarChart
                     data={volumeByCategory}
-                    formatValue={(v) => formatQuantity(v, 'kg')}
+                    formatValue={(v) => formatQuantity(v, 'unités')}
                   />
                 ) : (
                   <EmptyState title="Pas encore d'échanges finalisés" />

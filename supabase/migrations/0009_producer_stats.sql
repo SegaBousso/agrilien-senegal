@@ -21,11 +21,15 @@ begin
   end if;
 
   select json_build_object(
+    -- Pertes évitées = quantité RÉELLEMENT vendue (demande avec paiement confirmé).
     'pertes_evitees_kg', coalesce((
       select sum(r.quantity_requested)
       from public.purchase_requests r
       join public.listings l on l.id = r.listing_id
-      where l.producer_id = pid and r.status in ('acceptee', 'terminee')), 0),
+      where l.producer_id = pid
+        and exists (
+          select 1 from public.transactions t
+          where t.request_id = r.id and t.status = 'paye')), 0),
     'revenu_paye', coalesce((
       select sum(t.amount)
       from public.transactions t
