@@ -30,3 +30,7 @@ dist-ssr
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Supabase CLI temp files
+supabase/.temp/
+supabase/.branches/
