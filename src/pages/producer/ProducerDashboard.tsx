@@ -5,11 +5,13 @@ import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/States';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
-import { ListingStatusBadge } from '@/components/dashboard/StatusBadge';
+import { Panel, PanelEmpty } from '@/components/dashboard/Panel';
+import { ListingStatusBadge, RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyListings } from '@/hooks/useListings';
 import { useReceivedRequests } from '@/hooks/useRequests';
 import { useAuth } from '@/context/AuthContext';
-import { formatPrice, formatRelative } from '@/lib/utils';
+import { formatPrice, formatRelative, initials } from '@/lib/utils';
+import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 export default function ProducerDashboard() {
   const { producerId, profile } = useAuth();
@@ -47,55 +49,59 @@ export default function ProducerDashboard() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Dernières annonces */}
-        <div className="rounded-2xl border border-gray-100 bg-surface p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">Dernières annonces</h2>
-            <Link to="/producteur/annonces" className="text-sm font-medium text-primary-700 hover:underline">
-              Tout voir
-            </Link>
-          </div>
+        <Panel title="Dernières annonces" to="/producteur/annonces">
           {listings && listings.length > 0 ? (
-            <ul className="divide-y divide-gray-100">
-              {listings.slice(0, 5).map((l) => (
-                <li key={l.id} className="flex items-center justify-between py-3">
-                  <div className="min-w-0">
-                    <Link to={`/producteur/annonce/${l.id}/modifier`} className="truncate font-medium text-gray-900 hover:text-primary-700">
-                      {l.title}
+            <ul className="space-y-1">
+              {listings.slice(0, 5).map((l) => {
+                const img =
+                  l.images?.find((i) => i.is_main)?.image_url ?? l.images?.[0]?.image_url ?? PLACEHOLDER_IMAGE;
+                return (
+                  <li key={l.id}>
+                    <Link
+                      to={`/producteur/annonce/${l.id}/modifier`}
+                      className="group -mx-2 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted"
+                    >
+                      <img src={img} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-gray-900 group-hover:text-primary-700">{l.title}</p>
+                        <p className="text-xs text-gray-500">
+                          {formatPrice(l.price)} · {formatRelative(l.created_at)}
+                        </p>
+                      </div>
+                      <ListingStatusBadge status={l.status} />
                     </Link>
-                    <p className="text-xs text-gray-500">{formatPrice(l.price)} · {formatRelative(l.created_at)}</p>
-                  </div>
-                  <ListingStatusBadge status={l.status} />
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
-            <p className="py-6 text-center text-sm text-gray-500">Aucune annonce pour l'instant.</p>
+            <PanelEmpty>Aucune annonce pour l'instant.</PanelEmpty>
           )}
-        </div>
+        </Panel>
 
         {/* Demandes récentes */}
-        <div className="rounded-2xl border border-gray-100 bg-surface p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">Demandes récentes</h2>
-            <Link to="/producteur/demandes" className="text-sm font-medium text-primary-700 hover:underline">
-              Tout voir
-            </Link>
-          </div>
+        <Panel title="Demandes récentes" to="/producteur/demandes">
           {requests && requests.length > 0 ? (
-            <ul className="divide-y divide-gray-100">
+            <ul className="space-y-1">
               {requests.slice(0, 5).map((r) => (
-                <li key={r.id} className="py-3">
-                  <p className="truncate font-medium text-gray-900">{r.listing?.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {r.buyer?.full_name} · {r.quantity_requested} {r.listing?.unit} · {formatRelative(r.created_at)}
-                  </p>
+                <li key={r.id} className="-mx-2 flex items-center gap-3 rounded-xl p-2">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+                    {initials(r.buyer?.full_name ?? '?')}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-gray-900">{r.listing?.title}</p>
+                    <p className="truncate text-xs text-gray-500">
+                      {r.buyer?.full_name} · {r.quantity_requested} {r.listing?.unit} · {formatRelative(r.created_at)}
+                    </p>
+                  </div>
+                  <RequestStatusBadge status={r.status} />
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="py-6 text-center text-sm text-gray-500">Aucune demande reçue.</p>
+            <PanelEmpty>Aucune demande reçue.</PanelEmpty>
           )}
-        </div>
+        </Panel>
       </div>
     </>
   );

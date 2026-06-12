@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { Navbar } from './Navbar';
-import { cn } from '@/lib/utils';
+import { cn, initials } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import type { UserRole } from '@/types/database';
 
@@ -67,18 +67,34 @@ export function DashboardLayout() {
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-30 w-64 shrink-0 transform border-r border-gray-100 bg-surface p-4 transition-transform lg:static lg:z-0 lg:translate-x-0 lg:rounded-2xl lg:border lg:shadow-sm',
+            'fixed inset-y-0 left-0 z-30 flex w-72 shrink-0 transform flex-col border-r border-border bg-surface p-4 transition-transform lg:static lg:z-0 lg:w-64 lg:translate-x-0 lg:self-start lg:rounded-2xl lg:border lg:shadow-soft',
+            'lg:sticky lg:top-6',
             open ? 'translate-x-0' : '-translate-x-full',
           )}
         >
-          <div className="mb-4 flex items-center justify-between lg:mb-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-              {TITLES[role]}
-            </p>
-            <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="Fermer le menu">
-              <X className="h-5 w-5 text-gray-500" />
+          {/* Carte utilisateur */}
+          <div className="mb-4 flex items-center gap-3 rounded-xl bg-muted p-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 font-display text-sm font-bold text-primary-700">
+              {initials(profile?.full_name ?? 'Ag')}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-gray-900">
+                {profile?.full_name ?? 'Mon compte'}
+              </p>
+              <p className="truncate text-xs text-gray-500">{TITLES[role]}</p>
+            </div>
+            <button
+              className="text-gray-400 hover:text-gray-700 lg:hidden"
+              onClick={() => setOpen(false)}
+              aria-label="Fermer le menu"
+            >
+              <X className="h-5 w-5" />
             </button>
           </div>
+
+          <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            Menu
+          </p>
           <nav className="space-y-1">
             {items.map((item) => (
               <NavLink
@@ -88,14 +104,14 @@ export function DashboardLayout() {
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                      ? 'bg-primary-600 text-white shadow-soft'
+                      : 'text-gray-600 hover:bg-muted hover:text-gray-900',
                   )
                 }
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-[18px] w-[18px]" />
                 {item.label}
               </NavLink>
             ))}
@@ -109,7 +125,7 @@ export function DashboardLayout() {
         {/* Contenu */}
         <div className="min-w-0 flex-1">
           <button
-            className="mb-4 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm font-medium text-gray-700 lg:hidden"
+            className="mb-4 inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-medium text-gray-700 shadow-sm lg:hidden"
             onClick={() => setOpen(true)}
           >
             <Menu className="h-4 w-4" /> Menu
