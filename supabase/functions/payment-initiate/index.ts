@@ -28,14 +28,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, content-type',
 };
 
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  try {
+    return await handle(req);
+  } catch (e) {
+    // Toujours répondre avec les en-têtes CORS, sinon le navigateur signale
+    // "Failed to send a request to the Edge Function".
+    console.error('payment-initiate error:', e);
+    return json({ error: 'Erreur interne du service de paiement.' }, 500);
+  }
+});
 
-  const json = (body: unknown, status = 200) =>
-    new Response(JSON.stringify(body), {
-      status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+async function handle(req: Request): Promise<Response> {
+  // Secrets indispensables : on échoue proprement s'ils manquent.
+  const apiKey = Deno.env.get('PAYTECH_API_KEY');
+  const apiSecret = Deno.env.get('PAYTECH_API_SECRET');
+  if (!apiKey || !apiSecret) {
+    return json({ error: 'Paiement non configuré (secrets PayTech manquants).' }, 503);
+  }
 
   // --- Authentification de l'acheteur -------------------------------------
   const jwt = req.headers.get('Authorization')?.replace('Bearer ', '');
@@ -118,8 +135,8 @@ Deno.serve(async (req) => {
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      API_KEY: Deno.env.get('PAYTECH_API_KEY')!,
-      API_SECRET: Deno.env.get('PAYTECH_API_SECRET')!,
+      API_KEY: apiKey,
+      API_SECRET: apiSecret,
     },
     body: JSON.stringify(payload),
   });
@@ -132,4 +149,4 @@ Deno.serve(async (req) => {
 
   await admin.from('transactions').update({ token: data.token }).eq('id', tx.id);
   return json({ redirect_url: data.redirect_url ?? data.redirectUrl, token: data.token });
-});
+}
