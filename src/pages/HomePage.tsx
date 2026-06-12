@@ -97,7 +97,7 @@ export default function HomePage() {
           alt=""
           aria-hidden
           fetchPriority="high"
-          className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+          className="hero-zoom absolute inset-0 -z-10 h-full w-full object-cover object-center"
         />
         {/* Voiles dégradés : lisibilité du texte à gauche, profondeur en bas */}
         <div
@@ -123,8 +123,8 @@ export default function HomePage() {
           }}
         />
 
-        <div className="container relative py-20 md:py-28 lg:py-32">
-          <div className="grid items-center gap-12 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="container relative py-12 md:py-16 lg:py-20">
+          <div className="grid items-center gap-10 xl:grid-cols-[minmax(0,1fr)_320px]">
             {/* Colonne contenu */}
             <div className="max-w-2xl">
               <span
