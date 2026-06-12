@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ImagePlus, Loader2, X } from 'lucide-react';
+import { FileText, ImagePlus, Loader2, MapPin, Scale, X } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -17,6 +17,7 @@ import { addListingImage, uploadListingImage } from '@/services/catalog.service'
 import { ensureProducerProfile } from '@/services/profiles.service';
 import { listingSchema, type ListingInput } from '@/lib/validations';
 import { DELIVERY_OPTIONS, SENEGAL_REGIONS, UNITS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 interface PendingImage {
   file: File;
@@ -37,6 +38,7 @@ export default function ListingFormPage() {
 
   const [images, setImages] = useState<PendingImage[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const {
     register,
@@ -69,6 +71,7 @@ export default function ListingFormPage() {
   const addImages = (files: FileList | null) => {
     if (!files) return;
     const next = Array.from(files)
+      .filter((f) => f.type.startsWith('image/'))
       .slice(0, 5 - images.length)
       .map((file) => ({ file, preview: URL.createObjectURL(file) }));
     setImages((prev) => [...prev, ...next]);
@@ -155,6 +158,7 @@ export default function ListingFormPage() {
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardBody className="space-y-4">
+              <SectionHeader num="1" icon={FileText} title="Informations" subtitle="Le produit et sa description" />
               <Field label="Titre de l'annonce" htmlFor="title" error={errors.title?.message} required>
                 <Input id="title" placeholder="Mangues Kent fraîches" {...register('title')} />
               </Field>
@@ -180,7 +184,7 @@ export default function ListingFormPage() {
 
           <Card>
             <CardBody className="space-y-4">
-              <h2 className="font-semibold text-gray-900">Quantité & prix</h2>
+              <SectionHeader num="2" icon={Scale} title="Quantité & prix" subtitle="Ce que vous proposez et à quel tarif" />
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Quantité" htmlFor="quantity" error={errors.quantity?.message} required>
                   <Input id="quantity" type="number" step="any" min={0} {...register('quantity')} />
@@ -203,7 +207,7 @@ export default function ListingFormPage() {
 
           <Card>
             <CardBody className="space-y-4">
-              <h2 className="font-semibold text-gray-900">Localisation & livraison</h2>
+              <SectionHeader num="3" icon={MapPin} title="Localisation & livraison" subtitle="Où et quand récupérer le produit" />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Région" htmlFor="region" error={errors.region?.message} required>
                   <Select id="region" defaultValue="" {...register('region')}>
@@ -238,21 +242,41 @@ export default function ListingFormPage() {
           </Card>
         </div>
 
-        {/* Colonne images + actions */}
-        <div className="space-y-6">
+        {/* Colonne images + actions (sticky desktop) */}
+        <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <Card>
             <CardBody>
-              <h2 className="font-semibold text-gray-900">Photos</h2>
-              <p className="mt-1 text-xs text-gray-500">Jusqu'à 5 images. La première sera la photo principale.</p>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display font-semibold text-gray-900">Photos</h2>
+                <span className="text-xs font-medium text-gray-500">{images.length}/5</span>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Glissez vos images ici. La première sera la photo principale.
+              </p>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  addImages(e.dataTransfer.files);
+                }}
+                className={cn(
+                  'mt-4 grid grid-cols-3 gap-2 rounded-xl p-1 transition-colors',
+                  dragOver && 'bg-primary-50 ring-2 ring-primary-300',
+                )}
+              >
                 {images.map((img, i) => (
-                  <div key={i} className="relative aspect-square overflow-hidden rounded-lg border border-gray-200">
+                  <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
                     <img src={img.preview} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
-                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white transition-transform hover:scale-110"
                       aria-label="Retirer"
                     >
                       <X className="h-3 w-3" />
@@ -265,7 +289,7 @@ export default function ListingFormPage() {
                   </div>
                 ))}
                 {images.length < 5 && (
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-primary-400 hover:text-primary-600">
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-gray-400 transition-colors hover:border-primary-400 hover:text-primary-600">
                     <ImagePlus className="h-6 w-6" />
                     <span className="text-[10px]">Ajouter</span>
                     <input
@@ -288,7 +312,7 @@ export default function ListingFormPage() {
 
           <Card>
             <CardBody className="space-y-3">
-              <Button type="submit" className="w-full" loading={busy}>
+              <Button type="submit" size="lg" className="w-full" loading={busy}>
                 {uploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" /> Envoi des images…
@@ -310,5 +334,31 @@ export default function ListingFormPage() {
         </div>
       </form>
     </>
+  );
+}
+
+function SectionHeader({
+  num,
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  num: string;
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 border-b border-border pb-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 font-display text-sm font-bold text-primary-700">
+        {num}
+      </span>
+      <div className="min-w-0">
+        <h2 className="flex items-center gap-1.5 font-display font-semibold text-gray-900">
+          <Icon className="h-4 w-4 text-primary-600" /> {title}
+        </h2>
+        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+      </div>
+    </div>
   );
 }
