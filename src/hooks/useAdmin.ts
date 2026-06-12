@@ -3,12 +3,27 @@ import {
   fetchAdminStats,
   fetchAllListings,
   fetchAllUsers,
+  fetchImpactStats,
+  fetchPriceTrend,
+  fetchVolumeByCategory,
   updateUserRole,
 } from '@/services/admin.service';
 import type { ListingStatus, UserRole } from '@/types/database';
 
 export function useAdminStats() {
   return useQuery({ queryKey: ['admin', 'stats'], queryFn: fetchAdminStats });
+}
+
+export function useImpactStats() {
+  return useQuery({ queryKey: ['admin', 'impact'], queryFn: fetchImpactStats });
+}
+
+export function usePriceTrend(months = 6) {
+  return useQuery({ queryKey: ['admin', 'price-trend', months], queryFn: () => fetchPriceTrend(months) });
+}
+
+export function useVolumeByCategory() {
+  return useQuery({ queryKey: ['admin', 'volume-category'], queryFn: fetchVolumeByCategory });
 }
 
 export function useAdminListings(status?: ListingStatus) {

@@ -48,6 +48,50 @@ export async function fetchAdminStats(): Promise<AdminStats> {
   };
 }
 
+export interface ImpactStats {
+  pertes_evitees_kg: number;
+  volume_demande_kg: number;
+  transactions_payees: number;
+  montant_paye: number;
+  taux_acceptation: number;
+  producteurs_actifs: number;
+}
+
+/** Indicateurs d'impact agrégés en base (RPC SECURITY DEFINER, admin only). */
+export async function fetchImpactStats(): Promise<ImpactStats> {
+  const { data, error } = await supabase.rpc('admin_impact_stats');
+  if (error) throw error;
+  const d = (data ?? {}) as Record<string, unknown>;
+  return {
+    pertes_evitees_kg: Number(d.pertes_evitees_kg ?? 0),
+    volume_demande_kg: Number(d.volume_demande_kg ?? 0),
+    transactions_payees: Number(d.transactions_payees ?? 0),
+    montant_paye: Number(d.montant_paye ?? 0),
+    taux_acceptation: Number(d.taux_acceptation ?? 0),
+    producteurs_actifs: Number(d.producteurs_actifs ?? 0),
+  };
+}
+
+/** Prix moyen des annonces par mois (N derniers mois). */
+export async function fetchPriceTrend(months = 6): Promise<{ label: string; value: number }[]> {
+  const { data, error } = await supabase.rpc('admin_price_trend', { p_months: months });
+  if (error) throw error;
+  return ((data ?? []) as { label: string; avg_price: number }[]).map((r) => ({
+    label: r.label,
+    value: Number(r.avg_price),
+  }));
+}
+
+/** Volume échangé (pertes évitées) par catégorie. */
+export async function fetchVolumeByCategory(): Promise<{ label: string; value: number }[]> {
+  const { data, error } = await supabase.rpc('admin_volume_by_category');
+  if (error) throw error;
+  return ((data ?? []) as { category: string; volume: number }[]).map((r) => ({
+    label: r.category,
+    value: Number(r.volume),
+  }));
+}
+
 /** Annonces pour la modération (tous statuts). */
 export async function fetchAllListings(status?: ListingStatus) {
   let query = supabase
