@@ -123,7 +123,7 @@ export default function HomePage() {
           }}
         />
 
-        <div className="container relative py-12 md:py-16 lg:py-20">
+        <div className="container relative py-10 md:py-12 lg:py-14">
           <div className="grid items-center gap-10 xl:grid-cols-[minmax(0,1fr)_320px]">
             {/* Colonne contenu */}
             <div className="max-w-2xl">
