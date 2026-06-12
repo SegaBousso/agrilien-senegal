@@ -82,10 +82,10 @@ export default function AdminCategories() {
       ) : categories && categories.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
-            <div key={c.id} className="rounded-2xl border border-gray-100 bg-surface p-4 shadow-sm">
+            <div key={c.id} className="rounded-2xl border border-border bg-surface p-4 shadow-soft transition-shadow hover:shadow-md">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{c.name}</h3>
+                  <h3 className="font-display font-semibold text-gray-900">{c.name}</h3>
                   {c.description && <p className="mt-1 text-sm text-gray-500">{c.description}</p>}
                 </div>
                 <Badge className={c.is_active ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'}>

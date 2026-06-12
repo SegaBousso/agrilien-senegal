@@ -46,9 +46,9 @@ export default function AdminUsers() {
       {isLoading ? (
         <Spinner />
       ) : users && users.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-surface shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-soft">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs uppercase text-gray-500">
+            <thead className="border-b border-border bg-muted text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-4 py-3 font-medium">Utilisateur</th>
                 <th className="hidden px-4 py-3 font-medium md:table-cell">Contact</th>
@@ -57,12 +57,12 @@ export default function AdminUsers() {
                 <th className="px-4 py-3 text-right font-medium">Modifier</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50/50">
+                <tr key={u.id} className="transition-colors hover:bg-muted">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 font-display text-xs font-bold text-primary-700">
                         {initials(u.full_name)}
                       </span>
                       <span className="font-medium text-gray-900">{u.full_name}</span>

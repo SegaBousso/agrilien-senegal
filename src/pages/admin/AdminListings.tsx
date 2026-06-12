@@ -48,8 +48,8 @@ export default function AdminListings() {
             className={cn(
               'rounded-full px-4 py-2 text-sm font-medium transition-colors',
               filter === f.value
-                ? 'bg-primary-600 text-white'
-                : 'bg-surface text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50',
+                ? 'bg-primary-600 text-white shadow-soft'
+                : 'bg-surface text-gray-600 ring-1 ring-border hover:bg-muted',
             )}
           >
             {f.label}
@@ -64,7 +64,7 @@ export default function AdminListings() {
           {listings.map((l) => {
             const img = l.images?.find((i) => i.is_main)?.image_url ?? l.images?.[0]?.image_url ?? PLACEHOLDER_IMAGE;
             return (
-              <div key={l.id} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-surface p-4 shadow-sm sm:flex-row sm:items-center">
+              <div key={l.id} className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 shadow-soft transition-shadow hover:shadow-md sm:flex-row sm:items-center">
                 <img src={img} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
