@@ -1,16 +1,19 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Clock, Inbox, ListChecks, PlusCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Inbox, Leaf, ListChecks, Percent, PlusCircle, Wallet } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/States';
+import { Spinner, EmptyState } from '@/components/ui/States';
+import { Card, CardBody, CardTitle } from '@/components/ui/Card';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
 import { Panel, PanelEmpty } from '@/components/dashboard/Panel';
+import { BarChart } from '@/components/charts/BarChart';
 import { ListingStatusBadge, RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyListings } from '@/hooks/useListings';
 import { useReceivedRequests } from '@/hooks/useRequests';
+import { useProducerImpactStats, useProducerRevenueTrend } from '@/hooks/useProducerStats';
 import { useAuth } from '@/context/AuthContext';
-import { formatPrice, formatRelative, initials } from '@/lib/utils';
+import { formatPrice, formatQuantity, formatRelative, initials } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 export default function ProducerDashboard() {
@@ -18,6 +21,8 @@ export default function ProducerDashboard() {
   const { data: listings, isLoading } = useMyListings(producerId);
   const listingIds = useMemo(() => (listings ?? []).map((l) => l.id), [listings]);
   const { data: requests } = useReceivedRequests(listingIds);
+  const { data: impact } = useProducerImpactStats(!!producerId);
+  const { data: revenueTrend = [] } = useProducerRevenueTrend(!!producerId);
 
   if (isLoading) return <Spinner />;
 
@@ -46,6 +51,49 @@ export default function ProducerDashboard() {
         <StatCard label="En attente" value={pending} icon={<Clock className="h-5 w-5" />} accent="bg-accent-100 text-accent-600" />
         <StatCard label="Nouvelles demandes" value={newRequests} icon={<Inbox className="h-5 w-5" />} accent="bg-blue-50 text-blue-600" />
       </div>
+
+      {/* Impact (agrégé en base, isolé par producteur) */}
+      {impact && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-lg font-semibold text-gray-900">Mon impact</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="Revenu encaissé"
+              value={formatPrice(impact.revenu_paye)}
+              icon={<Wallet className="h-5 w-5" />}
+              accent="bg-primary-50 text-primary-600"
+            />
+            <StatCard
+              label="Pertes évitées"
+              value={formatQuantity(impact.pertes_evitees_kg, 'kg')}
+              icon={<Leaf className="h-5 w-5" />}
+              accent="bg-primary-50 text-primary-600"
+            />
+            <StatCard
+              label="Ventes payées"
+              value={impact.transactions_payees}
+              icon={<CheckCircle2 className="h-5 w-5" />}
+              accent="bg-blue-50 text-blue-600"
+            />
+            <StatCard
+              label="Taux d'acceptation"
+              value={`${impact.taux_acceptation}%`}
+              icon={<Percent className="h-5 w-5" />}
+            />
+          </div>
+
+          <Card className="mt-6">
+            <CardBody>
+              <CardTitle className="mb-5">Revenu encaissé par mois (6 mois)</CardTitle>
+              {revenueTrend.length > 0 ? (
+                <BarChart data={revenueTrend} formatValue={(v) => formatPrice(v)} />
+              ) : (
+                <EmptyState title="Aucun paiement encaissé pour l'instant" />
+              )}
+            </CardBody>
+          </Card>
+        </section>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Dernières annonces */}
