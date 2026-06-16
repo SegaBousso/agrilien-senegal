@@ -31,12 +31,34 @@ export interface IntechInitInput {
   extra?: Record<string, unknown>;
 }
 
+/**
+ * supabase-js masque le corps des erreurs HTTP (« returned a non-2xx status
+ * code »). On lit la Response attachée (`error.context`) pour récupérer le vrai
+ * message renvoyé par l'Edge Function.
+ */
+async function readFunctionError(error: unknown): Promise<string | null> {
+  const ctx = (error as { context?: unknown }).context;
+  if (ctx instanceof Response) {
+    try {
+      const body = await ctx.clone().json();
+      if (typeof body?.error === 'string') return body.error;
+      if (body?.error || body?.detail) return JSON.stringify(body.error ?? body.detail);
+    } catch {
+      /* corps non-JSON : on ignore */
+    }
+  }
+  return null;
+}
+
 /** Initie une opération InTech (cash-in) via l'Edge Function serveur. */
 export async function initiateIntechOperation(input: IntechInitInput): Promise<IntechInitResult> {
   const { data, error } = await supabase.functions.invoke<IntechInitResult>('intech-operation', {
     body: input,
   });
-  if (error) throw error;
+  if (error) {
+    const detail = await readFunctionError(error);
+    throw new Error(detail ?? (error instanceof Error ? error.message : 'Paiement impossible.'));
+  }
   if (!data) throw new Error('Réponse InTech invalide.');
   return data;
 }
