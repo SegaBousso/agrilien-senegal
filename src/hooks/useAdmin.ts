@@ -26,15 +26,20 @@ export function useVolumeByCategory() {
   return useQuery({ queryKey: ['admin', 'volume-category'], queryFn: fetchVolumeByCategory });
 }
 
-export function useAdminListings(status?: ListingStatus) {
+export function useAdminListings(status: ListingStatus | undefined, page: number) {
   return useQuery({
-    queryKey: ['admin', 'listings', status],
-    queryFn: () => fetchAllListings(status),
+    queryKey: ['admin', 'listings', status ?? 'all', page],
+    queryFn: () => fetchAllListings({ status, page }),
+    placeholderData: (prev) => prev,
   });
 }
 
-export function useAdminUsers() {
-  return useQuery({ queryKey: ['admin', 'users'], queryFn: fetchAllUsers });
+export function useAdminUsers(page: number, search: string) {
+  return useQuery({
+    queryKey: ['admin', 'users', page, search],
+    queryFn: () => fetchAllUsers({ page, search }),
+    placeholderData: (prev) => prev,
+  });
 }
 
 export function useUpdateUserRole() {

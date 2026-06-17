@@ -1,6 +1,23 @@
 import { supabase } from '@/lib/supabase';
 import type { Listing, ListingStatus, Profile, UserRole } from '@/types/database';
 
+export interface Paginated<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export type AdminListing = Listing & {
+  producer: { farm_name: string; profile: { full_name: string } };
+  images: { image_url: string; is_main: boolean }[];
+};
+
+/** Neutralise les métacaractères PostgREST pour éviter l'injection de filtre. */
+function sanitize(input: string): string {
+  return input.replace(/[^\p{L}\p{N}\s@._-]/gu, ' ').trim();
+}
+
 export interface AdminStats {
   totalUsers: number;
   totalProducers: number;
@@ -26,13 +43,12 @@ export async function fetchAdminStats(): Promise<AdminStats> {
       countAll('listings').eq('status', 'en_attente'),
       countAll('listings').eq('status', 'publiee'),
       countAll('purchase_requests'),
-      supabase.from('listings').select('region'),
+      supabase.rpc('admin_listings_by_region'),
     ]);
 
-  const byRegion = new Map<string, number>();
-  for (const row of (regionRows.data ?? []) as { region: string }[]) {
-    byRegion.set(row.region, (byRegion.get(row.region) ?? 0) + 1);
-  }
+  const listingsByRegion = ((regionRows.data ?? []) as { region: string; count: number }[]).map(
+    (r) => ({ region: r.region, count: Number(r.count) }),
+  );
 
   return {
     totalUsers: users.count ?? 0,
@@ -42,9 +58,7 @@ export async function fetchAdminStats(): Promise<AdminStats> {
     pendingListings: pending.count ?? 0,
     publishedListings: published.count ?? 0,
     totalRequests: requests.count ?? 0,
-    listingsByRegion: [...byRegion.entries()]
-      .map(([region, c]) => ({ region, count: c }))
-      .sort((a, b) => b.count - a.count),
+    listingsByRegion,
   };
 }
 
@@ -92,30 +106,54 @@ export async function fetchVolumeByCategory(): Promise<{ label: string; value: n
   }));
 }
 
-/** Annonces pour la modération (tous statuts). */
-export async function fetchAllListings(status?: ListingStatus) {
+/** Annonces pour la modération (paginées, filtre statut optionnel). */
+export async function fetchAllListings(
+  opts: { status?: ListingStatus; page?: number; pageSize?: number } = {},
+): Promise<Paginated<AdminListing>> {
+  const { status, page = 1, pageSize = 15 } = opts;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
   let query = supabase
     .from('listings')
     .select(
       `*, producer:producer_profiles(farm_name, profile:profiles(full_name)), images:listing_images(*)`,
+      { count: 'exact' },
     )
     .order('created_at', { ascending: false });
   if (status) query = query.eq('status', status);
-  const { data, error } = await query;
+
+  const { data, error, count } = await query.range(from, to);
   if (error) throw error;
-  return (data ?? []) as unknown as (Listing & {
-    producer: { farm_name: string; profile: { full_name: string } };
-    images: { image_url: string; is_main: boolean }[];
-  })[];
+  return {
+    items: (data ?? []) as unknown as AdminListing[],
+    total: count ?? 0,
+    page,
+    pageSize,
+  };
 }
 
-export async function fetchAllUsers() {
-  const { data, error } = await supabase
+/** Utilisateurs (paginés, recherche nom/email optionnelle). */
+export async function fetchAllUsers(
+  opts: { page?: number; pageSize?: number; search?: string } = {},
+): Promise<Paginated<Profile>> {
+  const { page = 1, pageSize = 20, search } = opts;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
     .from('profiles')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false });
+
+  if (search) {
+    const term = sanitize(search);
+    if (term) query = query.or(`full_name.ilike.%${term}%,email.ilike.%${term}%`);
+  }
+
+  const { data, error, count } = await query.range(from, to);
   if (error) throw error;
-  return (data ?? []) as Profile[];
+  return { items: (data ?? []) as Profile[], total: count ?? 0, page, pageSize };
 }
 
 export async function updateUserRole(userId: string, role: UserRole) {
