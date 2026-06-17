@@ -23,12 +23,12 @@ export default function PaymentResultPage({ status }: { status: 'success' | 'can
           <XCircle className="h-16 w-16 text-amber-500" />
         )}
         <h1 className="mt-6 text-2xl font-bold text-gray-900">
-          {ok ? 'Merci, votre paiement est confirmé' : 'Paiement annulé'}
+          {ok ? 'Acompte confirmé, commande verrouillée' : 'Paiement annulé'}
         </h1>
         <p className="mt-2 max-w-md text-gray-600">
           {ok
-            ? 'Le producteur a été notifié et va préparer votre commande. Vous recevrez une confirmation par SMS.'
-            : "Votre paiement n'a pas été finalisé. Vous pouvez réessayer depuis vos demandes."}
+            ? 'Le contact du producteur vous est envoyé par SMS et notification. Contactez-le pour organiser la livraison et régler le solde directement.'
+            : "Votre acompte n'a pas été finalisé. Vous pouvez réessayer depuis vos demandes."}
         </p>
         {ref && <p className="mt-2 text-xs text-gray-400">Référence : {ref}</p>}
         <div className="mt-6 flex gap-3">

@@ -11,6 +11,7 @@ import { useInitiatePayment, useMyTransactions } from '@/hooks/usePayment';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { formatPrice, formatRelative } from '@/lib/utils';
+import { computeDeposit } from '@/lib/payments';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 
 export default function BuyerRequests() {
@@ -65,15 +66,18 @@ export default function BuyerRequests() {
                     {r.message && <p className="mt-1 truncate text-xs text-gray-400">“{r.message}”</p>}
                   </div>
 
-                  {/* Action de paiement (demande acceptée). */}
+                  {/* Acompte de mise en relation (demande acceptée). */}
                   {r.status === 'acceptee' && r.listing && (
                     <div className="flex shrink-0 flex-col items-end gap-1">
                       <span className="text-sm font-semibold text-gray-900">
-                        {formatPrice(r.quantity_requested * r.listing.price)}
+                        {formatPrice(computeDeposit(r.quantity_requested * r.listing.price))}
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        acompte · total {formatPrice(r.quantity_requested * r.listing.price)}
                       </span>
                       {paidRequestIds.has(r.id) ? (
                         <span className="flex items-center gap-1 text-sm font-medium text-primary-700">
-                          <CheckCircle2 className="h-4 w-4" /> Payé
+                          <CheckCircle2 className="h-4 w-4" /> Commande verrouillée
                         </span>
                       ) : (
                         <Button
@@ -82,7 +86,7 @@ export default function BuyerRequests() {
                           disabled={initiate.isPending}
                         >
                           <CreditCard className="h-4 w-4" />
-                          {initiate.isPending ? 'Redirection…' : 'Payer'}
+                          {initiate.isPending ? 'Redirection…' : 'Verrouiller'}
                         </Button>
                       )}
                     </div>

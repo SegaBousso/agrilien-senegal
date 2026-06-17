@@ -84,8 +84,16 @@ async function handle(req: Request): Promise<Response> {
   }
 
   const listing = request.listing as unknown as { title: string; price: number; unit: string };
-  const amount = Math.round(Number(request.quantity_requested) * Number(listing.price));
-  if (!(amount > 0)) return json({ error: 'Montant invalide.' }, 422);
+  const total = Math.round(Number(request.quantity_requested) * Number(listing.price));
+  if (!(total > 0)) return json({ error: 'Montant invalide.' }, 422);
+
+  // Modèle d'acompte : l'acheteur paie un acompte de mise en relation, pas le
+  // total (le reste se règle en direct à la livraison). Calcul serveur = foi.
+  const DEPOSIT_RATE = 0.1, DEPOSIT_MIN = 1000, DEPOSIT_MAX = 15000;
+  const amount = Math.min(
+    total,
+    Math.max(DEPOSIT_MIN, Math.min(Math.round(total * DEPOSIT_RATE), DEPOSIT_MAX)),
+  );
 
   // Empêche un double paiement.
   const { data: existingPaid } = await admin
@@ -119,16 +127,16 @@ async function handle(req: Request): Promise<Response> {
   const appUrl = Deno.env.get('APP_URL') ?? '';
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const payload = {
-    item_name: listing.title,
+    item_name: `Acompte — ${listing.title}`,
     item_price: amount,
     currency: 'XOF',
     ref_command: refCommand,
-    command_name: `Commande AgriLien — ${request.quantity_requested} ${listing.unit} de ${listing.title}`,
+    command_name: `Acompte de mise en relation — ${request.quantity_requested} ${listing.unit} de ${listing.title}`,
     env,
     ipn_url: `${supabaseUrl}/functions/v1/payment-ipn`,
     success_url: `${appUrl}/paiement/succes?ref=${refCommand}`,
     cancel_url: `${appUrl}/paiement/annule?ref=${refCommand}`,
-    custom_field: JSON.stringify({ transaction_id: tx.id, request_id: requestId }),
+    custom_field: JSON.stringify({ transaction_id: tx.id, request_id: requestId, total }),
   };
 
   const res = await fetch(PAYTECH_URL, {
