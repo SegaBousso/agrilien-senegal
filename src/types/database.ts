@@ -70,7 +70,17 @@ export interface ProductCategory {
   description: string | null;
   icon: string | null;
   is_active: boolean;
+  is_livestock: boolean;
   created_at: string;
+}
+
+/** Caractéristiques propres au bétail (stockées dans listings.attributes). */
+export interface AnimalAttributes {
+  race?: string;
+  age?: string;
+  sexe?: 'male' | 'femelle';
+  poids?: number;
+  vaccine?: boolean;
 }
 
 export interface Listing {
@@ -87,6 +97,7 @@ export interface Listing {
   availability_date: string | null;
   delivery_option: string | null;
   status: ListingStatus;
+  attributes: AnimalAttributes | null;
   created_at: string;
   updated_at: string;
 }

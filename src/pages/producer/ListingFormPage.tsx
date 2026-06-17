@@ -2,7 +2,7 @@ import { useEffect, useState, type ComponentType } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileText, ImagePlus, Loader2, MapPin, Scale, X } from 'lucide-react';
+import { Beef, FileText, ImagePlus, Loader2, MapPin, Scale, X } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -44,11 +44,17 @@ export default function ListingFormPage() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ListingInput>({
     resolver: zodResolver(listingSchema),
     defaultValues: { unit: 'kg', quantity: 1, price: 0 },
   });
+
+  // Affiche les champs bétail uniquement pour une catégorie d'élevage.
+  const selectedCategoryId = watch('category_id');
+  const isLivestock =
+    categories?.find((c) => c.id === selectedCategoryId)?.is_livestock ?? false;
 
   // Pré-remplissage en mode édition.
   useEffect(() => {
@@ -64,6 +70,11 @@ export default function ListingFormPage() {
         locality: existing.locality ?? '',
         availability_date: existing.availability_date ?? '',
         delivery_option: existing.delivery_option ?? '',
+        animal_race: existing.attributes?.race ?? '',
+        animal_age: existing.attributes?.age ?? '',
+        animal_sexe: existing.attributes?.sexe ?? '',
+        animal_poids: existing.attributes?.poids,
+        animal_vaccine: existing.attributes?.vaccine ?? false,
       });
     }
   }, [isEdit, existing, reset]);
@@ -204,6 +215,46 @@ export default function ListingFormPage() {
               </div>
             </CardBody>
           </Card>
+
+          {/* Caractéristiques animales — uniquement pour le bétail */}
+          {isLivestock && (
+            <Card>
+              <CardBody className="space-y-4">
+                <SectionHeader
+                  num="🐑"
+                  icon={Beef}
+                  title="Caractéristiques de l'animal"
+                  subtitle="Infos qui rassurent l'acheteur (race, âge, poids…)"
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Race" htmlFor="animal_race">
+                    <Input id="animal_race" placeholder="Ex. Ladoum" {...register('animal_race')} />
+                  </Field>
+                  <Field label="Âge" htmlFor="animal_age">
+                    <Input id="animal_age" placeholder="Ex. 18 mois" {...register('animal_age')} />
+                  </Field>
+                  <Field label="Sexe" htmlFor="animal_sexe">
+                    <Select id="animal_sexe" defaultValue="" {...register('animal_sexe')}>
+                      <option value="">Non précisé</option>
+                      <option value="male">Mâle</option>
+                      <option value="femelle">Femelle</option>
+                    </Select>
+                  </Field>
+                  <Field label="Poids (kg)" htmlFor="animal_poids" error={errors.animal_poids?.message}>
+                    <Input id="animal_poids" type="number" step="any" min={0} {...register('animal_poids')} />
+                  </Field>
+                </div>
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-border text-primary-600 focus:ring-primary-200"
+                    {...register('animal_vaccine')}
+                  />
+                  Animal vacciné
+                </label>
+              </CardBody>
+            </Card>
+          )}
 
           <Card>
             <CardBody className="space-y-4">

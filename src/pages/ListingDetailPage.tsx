@@ -4,12 +4,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BadgeCheck,
+  Beef,
   CalendarDays,
   ChevronRight,
   Heart,
   MapPin,
   Package,
   Phone,
+  Scale,
   ShieldCheck,
   Sprout,
   Truck,
@@ -140,6 +142,17 @@ export default function ListingDetailPage() {
                 <Info icon={MapPin} label="Localisation" value={`${listing.region}${listing.locality ? ` · ${listing.locality}` : ''}`} />
                 <Info icon={CalendarDays} label="Disponible le" value={formatDate(listing.availability_date)} />
                 <Info icon={Truck} label="Livraison" value={listing.delivery_option ?? 'À convenir'} />
+                {listing.attributes?.race && <Info icon={Beef} label="Race" value={listing.attributes.race} />}
+                {listing.attributes?.age && <Info icon={CalendarDays} label="Âge" value={listing.attributes.age} />}
+                {listing.attributes?.sexe && (
+                  <Info icon={Package} label="Sexe" value={listing.attributes.sexe === 'male' ? 'Mâle' : 'Femelle'} />
+                )}
+                {listing.attributes?.poids ? (
+                  <Info icon={Scale} label="Poids" value={`${listing.attributes.poids} kg`} />
+                ) : null}
+                {listing.attributes?.vaccine && (
+                  <Info icon={ShieldCheck} label="Vaccination" value="Vacciné" />
+                )}
               </dl>
 
               {/* Actions */}

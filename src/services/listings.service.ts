@@ -1,6 +1,24 @@
 import { supabase } from '@/lib/supabase';
 import type { ListingInput } from '@/lib/validations';
-import type { Listing, ListingStatus, ListingWithRelations } from '@/types/database';
+import type {
+  AnimalAttributes,
+  Listing,
+  ListingStatus,
+  ListingWithRelations,
+} from '@/types/database';
+
+/** Regroupe les champs bétail en objet JSON (null si aucun renseigné). */
+function packAnimalAttributes(input: Partial<ListingInput>): AnimalAttributes | null {
+  const a: AnimalAttributes = {};
+  if (input.animal_race) a.race = input.animal_race;
+  if (input.animal_age) a.age = input.animal_age;
+  if (input.animal_sexe) a.sexe = input.animal_sexe as 'male' | 'femelle';
+  if (input.animal_poids) a.poids = input.animal_poids;
+  if (input.animal_vaccine) a.vaccine = true;
+  return Object.keys(a).length ? a : null;
+}
+
+const ANIMAL_FIELDS = ['animal_race', 'animal_age', 'animal_sexe', 'animal_poids', 'animal_vaccine'];
 
 export interface ListingFilters {
   search?: string;
@@ -118,6 +136,7 @@ export async function createListing(producerId: string, input: ListingInput) {
       locality: input.locality || null,
       availability_date: input.availability_date || null,
       delivery_option: input.delivery_option || null,
+      attributes: packAnimalAttributes(input),
       status: 'en_attente',
     })
     .select()
@@ -127,14 +146,19 @@ export async function createListing(producerId: string, input: ListingInput) {
 }
 
 export async function updateListing(id: string, input: Partial<ListingInput>) {
+  const payload: Record<string, unknown> = {
+    ...input,
+    description: input.description || null,
+    locality: input.locality || null,
+    availability_date: input.availability_date || null,
+    attributes: packAnimalAttributes(input),
+  };
+  // Les champs bétail ne sont pas des colonnes : ils vont dans `attributes`.
+  for (const k of ANIMAL_FIELDS) delete payload[k];
+
   const { data, error } = await supabase
     .from('listings')
-    .update({
-      ...input,
-      description: input.description || null,
-      locality: input.locality || null,
-      availability_date: input.availability_date || null,
-    })
+    .update(payload)
     .eq('id', id)
     .select()
     .single();

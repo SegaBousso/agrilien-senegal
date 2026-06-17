@@ -61,6 +61,12 @@ export const listingSchema = z.object({
   locality: z.string().max(120).optional().or(z.literal('')),
   availability_date: z.string().optional().or(z.literal('')),
   delivery_option: z.string().optional().or(z.literal('')),
+  // Champs bétail (optionnels, affichés seulement pour les catégories d'élevage).
+  animal_race: z.string().max(80).optional().or(z.literal('')),
+  animal_age: z.string().max(40).optional().or(z.literal('')),
+  animal_sexe: z.enum(['male', 'femelle']).optional().or(z.literal('')),
+  animal_poids: z.coerce.number().nonnegative('Poids invalide').optional(),
+  animal_vaccine: z.boolean().optional(),
 });
 export type ListingInput = z.infer<typeof listingSchema>;
 
