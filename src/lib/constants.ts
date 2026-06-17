@@ -18,7 +18,7 @@ export const SENEGAL_REGIONS = [
   'Matam',
 ] as const;
 
-export const UNITS = ['kg', 'tonne', 'sac', 'caisse', 'litre', 'unité', 'botte'] as const;
+export const UNITS = ['kg', 'tonne', 'sac', 'caisse', 'litre', 'unité', 'botte', 'tête'] as const;
 
 export const DELIVERY_OPTIONS = [
   'Retrait sur place',
