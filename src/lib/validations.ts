@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { SENEGAL_REGIONS, UNITS } from './constants';
 
-const phoneRegex = /^(\+221|00221)?\s?(7[0678])\s?\d{3}\s?\d{2}\s?\d{2}$/;
+// Mobiles sénégalais : préfixes 70 (Expresso), 75 (Free/Promobile), 76 (Free),
+// 77 (Orange), 78 (Orange/Yas). Indicatif +221 / 00221 optionnel.
+const phoneRegex = /^(\+221|00221)?\s?(7[05678])\s?\d{3}\s?\d{2}\s?\d{2}$/;
 
 // --- Authentification ---------------------------------------------------------
 export const loginSchema = z.object({
@@ -16,9 +18,9 @@ export const registerSchema = z
     email: z.string().email('Email invalide'),
     phone: z
       .string()
-      .regex(phoneRegex, 'Numéro sénégalais invalide (ex. 77 123 45 67)')
-      .optional()
-      .or(z.literal('')),
+      .trim()
+      .min(1, 'Téléphone requis')
+      .regex(phoneRegex, 'Numéro sénégalais invalide (ex. 77 123 45 67)'),
     password: z.string().min(8, 'Au moins 8 caractères'),
     confirm_password: z.string(),
     role: z.enum(['producer', 'buyer'], {

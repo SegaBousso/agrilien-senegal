@@ -102,7 +102,7 @@ export default function RegisterPage() {
             <Field label="Nom complet" htmlFor="full_name" error={errors.full_name?.message} required>
               <Input id="full_name" autoComplete="name" {...register('full_name')} />
             </Field>
-            <Field label="Téléphone" htmlFor="phone" error={errors.phone?.message} hint="Ex. 77 123 45 67">
+            <Field label="Téléphone" htmlFor="phone" required error={errors.phone?.message} hint="Ex. 77 123 45 67">
               <Input id="phone" type="tel" autoComplete="tel" {...register('phone')} />
             </Field>
           </div>
