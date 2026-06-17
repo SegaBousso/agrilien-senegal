@@ -22,7 +22,12 @@ export function ProtectedRoute({ children, role }: ProtectedRouteProps) {
     return <Navigate to="/connexion" state={{ from: location.pathname }} replace />;
   }
 
-  if (role && profile) {
+  if (role) {
+    // Rôle requis : sans profil chargé (échec/latence), impossible de vérifier
+    // -> on refuse l'accès plutôt que d'afficher la page par défaut.
+    if (!profile) {
+      return <Navigate to="/" replace />;
+    }
     const allowed = Array.isArray(role) ? role : [role];
     if (!allowed.includes(profile.role)) {
       return <Navigate to="/" replace />;

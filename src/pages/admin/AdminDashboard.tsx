@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Clock, ListChecks, Package, Send, Users } from 'lucide-react';
 import { Seo } from '@/components/Seo';
-import { Spinner } from '@/components/ui/States';
+import { Spinner, ErrorState } from '@/components/ui/States';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardTitle } from '@/components/ui/Card';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
@@ -11,9 +11,11 @@ import { useAdminStats } from '@/hooks/useAdmin';
 import { CHART_COLORS } from '@/lib/constants';
 
 export default function AdminDashboard() {
-  const { data: stats, isLoading } = useAdminStats();
+  const { data: stats, isLoading, isError } = useAdminStats();
 
-  if (isLoading || !stats) return <Spinner />;
+  if (isLoading) return <Spinner />;
+  if (isError || !stats)
+    return <ErrorState title="Statistiques indisponibles" description="Impossible de charger les données. Réessayez." />;
 
   const accountSegments = [
     { label: 'Producteurs', value: stats.totalProducers, color: CHART_COLORS.primary },

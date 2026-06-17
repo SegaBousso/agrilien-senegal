@@ -12,7 +12,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { Seo } from '@/components/Seo';
-import { Spinner, EmptyState } from '@/components/ui/States';
+import { Spinner, EmptyState, ErrorState } from '@/components/ui/States';
 import { Card, CardBody, CardTitle } from '@/components/ui/Card';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
 import { DonutChart, type DonutSegment } from '@/components/charts/DonutChart';
@@ -27,11 +27,13 @@ import { CHART_COLORS } from '@/lib/constants';
 import { formatPrice, formatQuantity } from '@/lib/utils';
 
 export default function AdminStats() {
-  const { data: stats, isLoading } = useAdminStats();
+  const { data: stats, isLoading, isError } = useAdminStats();
   const { data: impact } = useImpactStats();
   const { data: priceTrend = [] } = usePriceTrend(6);
   const { data: volumeByCategory = [] } = useVolumeByCategory();
-  if (isLoading || !stats) return <Spinner />;
+  if (isLoading) return <Spinner />;
+  if (isError || !stats)
+    return <ErrorState title="Statistiques indisponibles" description="Impossible de charger les données. Réessayez." />;
 
   const accountSegments: DonutSegment[] = [
     { label: 'Producteurs', value: stats.totalProducers, color: CHART_COLORS.primary },
