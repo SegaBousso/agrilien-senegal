@@ -314,8 +314,13 @@ function PurchaseRequestModal({
       await createRequest.mutateAsync({ listingId, buyerId, input: values });
       reset();
       onSuccess();
-    } catch {
-      toast("Échec de l'envoi de la demande. Réessayez.", 'error');
+    } catch (err) {
+      // Remonte le message réel (ex. quantité demandée > stock disponible).
+      const msg =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: unknown }).message)
+          : "Échec de l'envoi de la demande. Réessayez.";
+      toast(msg, 'error');
     }
   });
 

@@ -81,8 +81,13 @@ export default function ListingFormPage() {
 
   const addImages = (files: FileList | null) => {
     if (!files) return;
-    const next = Array.from(files)
-      .filter((f) => f.type.startsWith('image/'))
+    const MAX_BYTES = 5 * 1024 * 1024; // 5 Mo
+    const all = Array.from(files);
+    const valid = all.filter((f) => f.type.startsWith('image/') && f.size <= MAX_BYTES);
+    if (valid.length < all.length) {
+      toast('Certaines images ont été ignorées (format non-image ou taille > 5 Mo).', 'info');
+    }
+    const next = valid
       .slice(0, 5 - images.length)
       .map((file) => ({ file, preview: URL.createObjectURL(file) }));
     setImages((prev) => [...prev, ...next]);
