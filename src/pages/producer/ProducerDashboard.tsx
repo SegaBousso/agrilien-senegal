@@ -134,12 +134,12 @@ export default function ProducerDashboard() {
               {requests.slice(0, 5).map((r) => (
                 <li key={r.id} className="-mx-2 flex items-center gap-3 rounded-xl p-2">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
-                    {initials(r.buyer?.full_name ?? '?')}
+                    {initials(r.buyer_name ?? '?')}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-gray-900">{r.listing?.title}</p>
                     <p className="truncate text-xs text-gray-500">
-                      {r.buyer?.full_name} · {r.quantity_requested} {r.listing?.unit} · {formatRelative(r.created_at)}
+                      {r.buyer_name} · {r.quantity_requested} {r.listing?.unit} · {formatRelative(r.created_at)}
                     </p>
                   </div>
                   <RequestStatusBadge status={r.status} />

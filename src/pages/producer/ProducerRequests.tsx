@@ -46,11 +46,11 @@ export default function ProducerRequests() {
                   <div className="flex min-w-0 gap-3">
                     {/* Avatar acheteur */}
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-100 font-display text-sm font-bold text-primary-700">
-                      {initials(r.buyer?.full_name ?? '?')}
+                      {initials(r.buyer_name ?? r.buyer?.full_name ?? '?')}
                     </span>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-gray-900">{r.buyer?.full_name}</h3>
+                        <h3 className="font-semibold text-gray-900">{r.buyer_name ?? r.buyer?.full_name}</h3>
                         <RequestStatusBadge status={r.status} />
                       </div>
                       <p className="mt-1 text-sm text-gray-600">
@@ -65,13 +65,17 @@ export default function ProducerRequests() {
                           {r.message}
                         </p>
                       )}
-                      {r.buyer?.phone && (
+                      {r.buyer?.phone ? (
                         <a
                           href={`tel:${r.buyer.phone}`}
                           className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary-700 hover:underline"
                         >
                           <Phone className="h-4 w-4" /> {r.buyer.phone}
                         </a>
+                      ) : (
+                        <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-gray-400">
+                          <Phone className="h-3.5 w-3.5" /> Coordonnées débloquées après paiement de l'acompte
+                        </p>
                       )}
                     </div>
                   </div>

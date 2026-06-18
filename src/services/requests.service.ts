@@ -6,10 +6,12 @@ import type {
   RequestStatus,
 } from '@/types/database';
 
+// Le nom de l'acheteur est lu via `buyer_name` (dénormalisé). Le profil acheteur
+// (téléphone) n'est renvoyé par la RLS qu'après paiement de l'acompte.
 const REQUEST_SELECT = `
   *,
   listing:listings(id, title, unit, price, region, images:listing_images(*)),
-  buyer:profiles(id, full_name, phone, email)
+  buyer:profiles(id, full_name, phone)
 `;
 
 /** Crée une demande d'achat (acheteur). */

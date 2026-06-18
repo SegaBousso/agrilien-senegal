@@ -114,6 +114,7 @@ export interface PurchaseRequest {
   id: string;
   listing_id: string;
   buyer_id: string;
+  buyer_name: string | null;
   quantity_requested: number;
   message: string | null;
   status: RequestStatus;
@@ -173,5 +174,7 @@ export interface PurchaseRequestWithRelations extends PurchaseRequest {
   listing: Pick<Listing, 'id' | 'title' | 'unit' | 'price' | 'region'> & {
     images: ListingImage[];
   };
-  buyer: Pick<Profile, 'id' | 'full_name' | 'phone' | 'email'>;
+  // null tant que l'acompte n'est pas payé (le profil acheteur est gaté par RLS).
+  // Le nom reste disponible via `buyer_name`.
+  buyer: Pick<Profile, 'id' | 'full_name' | 'phone'> | null;
 }
