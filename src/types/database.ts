@@ -35,6 +35,7 @@ export interface Profile {
   email: string;
   phone: string | null;
   role: UserRole;
+  suspended: boolean;
   created_at: string;
   updated_at: string;
 }

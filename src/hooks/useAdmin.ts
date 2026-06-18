@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  adminUserAction,
   fetchAdminStats,
   fetchAllListings,
   fetchAllUsers,
@@ -7,6 +8,7 @@ import {
   fetchPriceTrend,
   fetchVolumeByCategory,
   updateUserRole,
+  type AdminUserAction,
 } from '@/services/admin.service';
 import type { ListingStatus, UserRole } from '@/types/database';
 
@@ -47,6 +49,15 @@ export function useUpdateUserRole() {
   return useMutation({
     mutationFn: ({ userId, role }: { userId: string; role: UserRole }) =>
       updateUserRole(userId, role),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  });
+}
+
+export function useAdminUserAction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ action, userId }: { action: AdminUserAction; userId: string }) =>
+      adminUserAction(action, userId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
   });
 }

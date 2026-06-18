@@ -14,6 +14,7 @@ import PaymentResultPage from '@/pages/PaymentResultPage';
 import IntechTestPage from '@/pages/IntechTestPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
+import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 // Espace producteur
@@ -55,6 +56,7 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route path="/connexion" element={<LoginPage />} />
           <Route path="/inscription" element={<RegisterPage />} />
+          <Route path="/reinitialiser" element={<ResetPasswordPage />} />
         </Route>
 
         {/* Espace producteur */}

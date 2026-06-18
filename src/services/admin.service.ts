@@ -160,3 +160,19 @@ export async function updateUserRole(userId: string, role: UserRole) {
   const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
   if (error) throw error;
 }
+
+export type AdminUserAction = 'suspend' | 'reactivate' | 'reset_password';
+
+/** Action sensible sur un compte (Edge Function admin-users, journalisée). */
+export async function adminUserAction(action: AdminUserAction, userId: string) {
+  const { error } = await supabase.functions.invoke('admin-users', { body: { action, userId } });
+  if (error) {
+    // Remonte le message précis renvoyé par la fonction (corps masqué par supabase-js).
+    const ctx = (error as { context?: unknown }).context;
+    if (ctx instanceof Response) {
+      const body = await ctx.clone().json().catch(() => null);
+      if (body?.error) throw new Error(String(body.error));
+    }
+    throw error;
+  }
+}
