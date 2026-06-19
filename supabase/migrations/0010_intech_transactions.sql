@@ -31,6 +31,7 @@ create table if not exists public.intech_transactions (
 create index if not exists intech_tx_user_idx on public.intech_transactions (user_id);
 create index if not exists intech_tx_status_idx on public.intech_transactions (status);
 
+drop trigger if exists intech_transactions_updated_at on public.intech_transactions;
 create trigger intech_transactions_updated_at
   before update on public.intech_transactions
   for each row execute function public.set_updated_at ();
@@ -39,8 +40,10 @@ create trigger intech_transactions_updated_at
 -- (Edge Functions). La clé API InTech ne transite jamais côté client.
 alter table public.intech_transactions enable row level security;
 
+drop policy if exists "Utilisateur voit ses operations intech" on public.intech_transactions;
 create policy "Utilisateur voit ses operations intech"
   on public.intech_transactions for select using (user_id = auth.uid ());
 
+drop policy if exists "Admin voit toutes les operations intech" on public.intech_transactions;
 create policy "Admin voit toutes les operations intech"
   on public.intech_transactions for select using (public.is_admin ());

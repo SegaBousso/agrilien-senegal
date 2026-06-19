@@ -120,6 +120,7 @@ create trigger requests_check_quantity
 -- (publics car vendeurs), et acheteurs ayant écrit au producteur courant.
 -- -----------------------------------------------------------------------------
 drop policy if exists "Profils lisibles par tous (infos publiques producteur)" on public.profiles;
+drop policy if exists "Lecture des profils (restreinte)" on public.profiles;
 create policy "Lecture des profils (restreinte)"
   on public.profiles for select using (
     auth.uid () = id

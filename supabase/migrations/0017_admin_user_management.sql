@@ -29,5 +29,6 @@ create index if not exists admin_actions_created_idx on public.admin_actions (cr
 -- (Edge Function) -> aucune policy d'insert pour les clients.
 alter table public.admin_actions enable row level security;
 
+drop policy if exists "Admin lit le journal d'audit" on public.admin_actions;
 create policy "Admin lit le journal d'audit"
   on public.admin_actions for select using (public.is_admin ());

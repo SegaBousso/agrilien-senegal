@@ -8,16 +8,21 @@
 -- fixer un montant ni forcer un statut « payé ».
 -- =============================================================================
 
-create type payment_status as enum (
-  'initie',     -- transaction créée, redirection PayTech en cours
-  'en_attente', -- en cours côté opérateur
-  'paye',       -- paiement confirmé par l'IPN
-  'echoue',     -- échec / refus
-  'annule',     -- annulé par l'acheteur
-  'rembourse'   -- remboursé
-);
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'payment_status') then
+    create type payment_status as enum (
+      'initie',     -- transaction créée, redirection PayTech en cours
+      'en_attente', -- en cours côté opérateur
+      'paye',       -- paiement confirmé par l'IPN
+      'echoue',     -- échec / refus
+      'annule',     -- annulé par l'acheteur
+      'rembourse'   -- remboursé
+    );
+  end if;
+end $$;
 
-create table public.transactions (
+create table if not exists public.transactions (
   id              uuid primary key default gen_random_uuid (),
   ref_command     text not null unique,                -- référence envoyée à PayTech
   request_id      uuid references public.purchase_requests (id) on delete set null,
@@ -35,10 +40,11 @@ create table public.transactions (
   paid_at         timestamptz
 );
 
-create index transactions_buyer_idx on public.transactions (buyer_id);
-create index transactions_request_idx on public.transactions (request_id);
-create index transactions_status_idx on public.transactions (status);
+create index if not exists transactions_buyer_idx on public.transactions (buyer_id);
+create index if not exists transactions_request_idx on public.transactions (request_id);
+create index if not exists transactions_status_idx on public.transactions (status);
 
+drop trigger if exists transactions_updated_at on public.transactions;
 create trigger transactions_updated_at
   before update on public.transactions
   for each row execute function public.set_updated_at ();
@@ -49,10 +55,12 @@ create trigger transactions_updated_at
 alter table public.transactions enable row level security;
 
 -- L'acheteur voit ses propres transactions.
+drop policy if exists "Acheteur voit ses transactions" on public.transactions;
 create policy "Acheteur voit ses transactions"
   on public.transactions for select using (buyer_id = auth.uid ());
 
 -- Le producteur voit les transactions liées à ses annonces (suivi des paiements).
+drop policy if exists "Producteur voit les transactions de ses annonces" on public.transactions;
 create policy "Producteur voit les transactions de ses annonces"
   on public.transactions for select using (
     exists (
@@ -65,6 +73,7 @@ create policy "Producteur voit les transactions de ses annonces"
   );
 
 -- L'admin voit tout.
+drop policy if exists "Admin voit toutes les transactions" on public.transactions;
 create policy "Admin voit toutes les transactions"
   on public.transactions for select using (public.is_admin ());
 
