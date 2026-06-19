@@ -144,6 +144,7 @@ export type PaymentStatus =
   | 'paye'
   | 'echoue'
   | 'annule'
+  | 'a_rembourser'
   | 'rembourse';
 
 export interface Transaction {

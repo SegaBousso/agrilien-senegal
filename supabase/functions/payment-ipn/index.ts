@@ -64,24 +64,39 @@ Deno.serve(async (req) => {
   // --- Recherche de la transaction ----------------------------------------
   const { data: tx } = await admin
     .from('transactions')
-    .select('id, status')
+    .select('id, status, request_id')
     .eq('ref_command', ref_command)
     .maybeSingle();
   if (!tx) return new Response('Transaction inconnue', { status: 404 });
 
   // Idempotence : ne retraite pas une transaction déjà finalisée.
-  if (tx.status === 'paye') return new Response('Déjà traité', { status: 200 });
+  if (tx.status === 'paye' || tx.status === 'a_rembourser') {
+    return new Response('Déjà traité', { status: 200 });
+  }
 
   if (type_event === 'sale_complete') {
+    // Réservation ATOMIQUE du stock avant de confirmer le paiement. Si deux
+    // acheteurs paient le même stock quasi simultanément, un seul réussit ;
+    // le perdant a payé mais le stock est épuisé → 'a_rembourser' (un admin
+    // est notifié, le contact n'est PAS débloqué).
+    const { data: reserved, error: reserveErr } = tx.request_id
+      ? await admin.rpc('try_reserve_stock', { p_request_id: tx.request_id })
+      : { data: true, error: null };
+
+    // En cas d'erreur RPC inattendue : on confirme quand même le paiement
+    // (l'argent a été pris) et on arbitre manuellement — on ne « perd » pas
+    // un paiement à cause d'un aléa technique de réservation.
+    const ok = reserveErr ? true : reserved !== false;
+
     await admin
       .from('transactions')
       .update({
-        status: 'paye',
+        status: ok ? 'paye' : 'a_rembourser',
         payment_method: payment_method ?? null,
         client_phone: client_phone ?? null,
         paid_at: new Date().toISOString(),
       })
-      .eq('id', tx.id); // -> déclenche notify_on_payment (notifs + SMS)
+      .eq('id', tx.id); // 'paye' -> notify_on_payment ; 'a_rembourser' -> notify_on_refund_needed
   } else if (type_event === 'sale_canceled') {
     await admin.from('transactions').update({ status: 'annule' }).eq('id', tx.id);
   }
