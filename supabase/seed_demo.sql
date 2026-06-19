@@ -18,28 +18,55 @@ do $$
 declare
   pwd text := crypt('Demo1234!', gen_salt('bf'));
 begin
+  -- ⚠️ Les colonnes de jetons (confirmation_token, recovery_token, email_change*,
+  -- phone_change*, reauthentication_token) DOIVENT valoir '' (chaîne vide) et non
+  -- NULL : GoTrue les lit comme du texte et plante à la connexion si elles sont
+  -- NULL (« Database error querying schema » → identifiants refusés).
   insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-    raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change, email_change_token_new,
+    email_change_token_current, phone_change, phone_change_token, reauthentication_token
   )
   values
     ('00000000-0000-0000-0000-000000000000', 'a0000001-0000-4000-8000-000000000001',
      'authenticated', 'authenticated', 'producteur1@demo.agrilien.sn', pwd, now(),
      '{"provider":"email","providers":["email"]}',
-     '{"full_name":"Awa Diop","phone":"77 123 45 67","role":"producer"}', now(), now()),
+     '{"full_name":"Awa Diop","phone":"77 123 45 67","role":"producer"}', now(), now(),
+     '', '', '', '', '', '', '', ''),
     ('00000000-0000-0000-0000-000000000000', 'a0000002-0000-4000-8000-000000000002',
      'authenticated', 'authenticated', 'producteur2@demo.agrilien.sn', pwd, now(),
      '{"provider":"email","providers":["email"]}',
-     '{"full_name":"Modou Sarr","phone":"76 987 65 43","role":"producer"}', now(), now()),
+     '{"full_name":"Modou Sarr","phone":"76 987 65 43","role":"producer"}', now(), now(),
+     '', '', '', '', '', '', '', ''),
     ('00000000-0000-0000-0000-000000000000', 'b0000001-0000-4000-8000-000000000003',
      'authenticated', 'authenticated', 'acheteur@demo.agrilien.sn', pwd, now(),
      '{"provider":"email","providers":["email"]}',
-     '{"full_name":"Fatou Ndiaye","phone":"70 111 22 33","role":"buyer"}', now(), now()),
+     '{"full_name":"Fatou Ndiaye","phone":"70 111 22 33","role":"buyer"}', now(), now(),
+     '', '', '', '', '', '', '', ''),
     ('00000000-0000-0000-0000-000000000000', 'c0000001-0000-4000-8000-000000000004',
      'authenticated', 'authenticated', 'admin@demo.agrilien.sn', pwd, now(),
      '{"provider":"email","providers":["email"]}',
-     '{"full_name":"Administrateur Démo","role":"admin"}', now(), now())
+     '{"full_name":"Administrateur Démo","role":"admin"}', now(), now(),
+     '', '', '', '', '', '', '', '')
   on conflict (id) do nothing;
+
+  -- RÉPARATION des comptes démo déjà créés avant ce correctif (jetons NULL) :
+  -- rejoue à blanc les colonnes de jetons et confirme l'email si besoin.
+  update auth.users set
+    confirmation_token         = coalesce(confirmation_token, ''),
+    recovery_token             = coalesce(recovery_token, ''),
+    email_change               = coalesce(email_change, ''),
+    email_change_token_new     = coalesce(email_change_token_new, ''),
+    email_change_token_current = coalesce(email_change_token_current, ''),
+    phone_change               = coalesce(phone_change, ''),
+    phone_change_token         = coalesce(phone_change_token, ''),
+    reauthentication_token     = coalesce(reauthentication_token, ''),
+    email_confirmed_at         = coalesce(email_confirmed_at, now())
+  where email in (
+    'producteur1@demo.agrilien.sn', 'producteur2@demo.agrilien.sn',
+    'acheteur@demo.agrilien.sn', 'admin@demo.agrilien.sn'
+  );
 end $$;
 
 -- Identités email (nécessaire pour la connexion sur Supabase récent).
