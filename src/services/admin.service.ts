@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { Listing, ListingStatus, Profile, UserRole } from '@/types/database';
+import type { BuyerType, Listing, ListingStatus, Profile, UserRole } from '@/types/database';
 
 export interface Paginated<T> {
   items: T[];
@@ -154,6 +154,41 @@ export async function fetchAllUsers(
   const { data, error, count } = await query.range(from, to);
   if (error) throw error;
   return { items: (data ?? []) as Profile[], total: count ?? 0, page, pageSize };
+}
+
+export interface AdminUserDetail {
+  profile: {
+    id: string;
+    full_name: string;
+    email: string;
+    phone: string | null;
+    role: UserRole;
+    suspended: boolean;
+    created_at: string;
+  };
+  producer: { farm_name: string; region: string; commune: string | null } | null;
+  buyer: { buyer_type: BuyerType; organization_name: string | null; region: string | null } | null;
+  activity: {
+    listings_count: number;
+    requests_received: number;
+    requests_sent: number;
+    favorites_count: number;
+    deposits_paid_count: number;
+    deposits_paid_amount: number;
+  };
+  recent_actions: {
+    action: string;
+    created_at: string;
+    details: Record<string, unknown> | null;
+    admin_name: string | null;
+  }[];
+}
+
+/** Fiche complète d'un utilisateur (RPC SECURITY DEFINER, admin only). */
+export async function fetchUserDetail(userId: string): Promise<AdminUserDetail> {
+  const { data, error } = await supabase.rpc('admin_user_detail', { p_user_id: userId });
+  if (error) throw error;
+  return data as AdminUserDetail;
 }
 
 export async function updateUserRole(userId: string, role: UserRole) {

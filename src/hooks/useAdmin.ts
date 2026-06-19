@@ -6,6 +6,7 @@ import {
   fetchAllUsers,
   fetchImpactStats,
   fetchPriceTrend,
+  fetchUserDetail,
   fetchVolumeByCategory,
   updateUserRole,
   type AdminUserAction,
@@ -41,6 +42,14 @@ export function useAdminUsers(page: number, search: string) {
     queryKey: ['admin', 'users', page, search],
     queryFn: () => fetchAllUsers({ page, search }),
     placeholderData: (prev) => prev,
+  });
+}
+
+export function useUserDetail(userId: string | null) {
+  return useQuery({
+    queryKey: ['admin', 'user-detail', userId],
+    queryFn: () => fetchUserDetail(userId!),
+    enabled: !!userId,
   });
 }
 

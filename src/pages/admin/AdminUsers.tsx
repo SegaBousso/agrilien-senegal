@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
 import { Spinner, EmptyState } from '@/components/ui/States';
+import { UserDetailModal } from '@/components/admin/UserDetailModal';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useAdminUsers, useAdminUserAction, useUpdateUserRole } from '@/hooks/useAdmin';
 import { useAuth } from '@/context/AuthContext';
@@ -65,6 +66,7 @@ export default function AdminUsers() {
   const [search, setSearch] = useState('');
   const [pending, setPending] = useState<{ userId: string; role: UserRole; name: string } | null>(null);
   const [actionConfirm, setActionConfirm] = useState<{ action: AdminUserAction; user: Profile } | null>(null);
+  const [detailUser, setDetailUser] = useState<Profile | null>(null);
 
   const { data, isLoading } = useAdminUsers(page, search);
   const { session } = useAuth();
@@ -153,7 +155,13 @@ export default function AdminUsers() {
                         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 font-display text-xs font-bold text-primary-700">
                           {initials(u.full_name)}
                         </span>
-                        <span className="font-medium text-gray-900">{u.full_name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setDetailUser(u)}
+                          className="font-medium text-gray-900 hover:text-primary-700 hover:underline"
+                        >
+                          {u.full_name}
+                        </button>
                       </div>
                     </td>
                     <td className="hidden px-4 py-3 text-gray-600 md:table-cell">
@@ -214,6 +222,16 @@ export default function AdminUsers() {
       ) : (
         <EmptyState title="Aucun utilisateur" description={search ? 'Aucun résultat pour cette recherche.' : undefined} />
       )}
+
+      {/* Fiche détaillée de l'utilisateur */}
+      <UserDetailModal
+        user={detailUser}
+        onClose={() => setDetailUser(null)}
+        onAction={(action) => {
+          if (detailUser) setActionConfirm({ action, user: detailUser });
+          setDetailUser(null);
+        }}
+      />
 
       {/* Confirmation de promotion administrateur */}
       <Modal open={!!pending} onClose={() => setPending(null)} title="Promouvoir en administrateur ?">
