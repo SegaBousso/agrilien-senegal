@@ -7,11 +7,13 @@ import {
   fetchImpactStats,
   fetchPriceTrend,
   fetchUserDetail,
+  fetchVerifications,
   fetchVolumeByCategory,
+  setProducerVerification,
   updateUserRole,
   type AdminUserAction,
 } from '@/services/admin.service';
-import type { ListingStatus, UserRole } from '@/types/database';
+import type { ListingStatus, UserRole, VerificationStatus } from '@/types/database';
 
 export function useAdminStats() {
   return useQuery({ queryKey: ['admin', 'stats'], queryFn: fetchAdminStats });
@@ -50,6 +52,22 @@ export function useUserDetail(userId: string | null) {
     queryKey: ['admin', 'user-detail', userId],
     queryFn: () => fetchUserDetail(userId!),
     enabled: !!userId,
+  });
+}
+
+export function useVerifications(status: VerificationStatus = 'en_attente') {
+  return useQuery({
+    queryKey: ['admin', 'verifications', status],
+    queryFn: () => fetchVerifications(status),
+  });
+}
+
+export function useSetProducerVerification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, verified, notes }: { userId: string; verified: boolean; notes?: string }) =>
+      setProducerVerification(userId, verified, notes),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'verifications'] }),
   });
 }
 

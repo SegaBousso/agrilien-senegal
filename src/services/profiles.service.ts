@@ -64,6 +64,18 @@ export async function upsertBuyerProfile(
   return data as BuyerProfile;
 }
 
+/** Le producteur demande la vérification de son compte (→ statut 'en_attente'). */
+export async function requestVerification(userId: string) {
+  const { data, error } = await supabase
+    .from('producer_profiles')
+    .update({ verification_status: 'en_attente' })
+    .eq('user_id', userId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data as ProducerProfile;
+}
+
 /**
  * Garantit l'existence d'un profil producteur et renvoie son id.
  * Auto-réparation des comptes dont le profil n'a pas été créé à l'inscription

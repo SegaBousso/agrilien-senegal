@@ -7,6 +7,7 @@ import { Spinner, EmptyState } from '@/components/ui/States';
 import { Card, CardBody, CardTitle } from '@/components/ui/Card';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
 import { Panel, PanelEmpty } from '@/components/dashboard/Panel';
+import { VerificationCard } from '@/components/producer/VerificationCard';
 import { BarChart } from '@/components/charts/BarChart';
 import { ListingStatusBadge, RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyListings } from '@/hooks/useListings';
@@ -44,6 +45,10 @@ export default function ProducerDashboard() {
           </Link>
         }
       />
+
+      <div className="mb-6">
+        <VerificationCard userId={profile?.id} />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Annonces totales" value={listings?.length ?? 0} icon={<ListChecks className="h-5 w-5" />} />

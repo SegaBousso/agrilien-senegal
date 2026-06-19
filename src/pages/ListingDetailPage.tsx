@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  BadgeCheck,
   Beef,
   CalendarDays,
   ChevronRight,
@@ -21,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Field, Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner, ErrorState } from '@/components/ui/States';
+import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { useListing } from '@/hooks/useListings';
 import { useFavoriteIds, useToggleFavorite } from '@/hooks/useFavorites';
 import { useCreatePurchaseRequest } from '@/hooks/useRequests';
@@ -218,9 +218,11 @@ export default function ListingDetailPage() {
                   {initials(farmName)}
                 </span>
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1 truncate font-semibold text-gray-900">
-                    {farmName}
-                    <BadgeCheck className="h-4 w-4 shrink-0 text-primary-600" />
+                  <p className="flex items-center gap-1.5 truncate font-semibold text-gray-900">
+                    <span className="truncate">{farmName}</span>
+                    {listing.producer?.verification_status === 'verifie' && (
+                      <VerifiedBadge className="shrink-0" />
+                    )}
                   </p>
                   {listing.producer?.profile?.full_name && (
                     <p className="truncate text-sm text-gray-500">{listing.producer.profile.full_name}</p>

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, MapPin, Package, Sprout } from 'lucide-react';
 import { useToggleFavorite } from '@/hooks/useFavorites';
 import { useAuth } from '@/context/AuthContext';
+import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { cn, formatPrice, formatQuantity } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 import type { ListingWithRelations } from '@/types/database';
@@ -23,6 +24,7 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
 
   const canFavorite = showFavorite && session && role === 'buyer';
   const farmName = listing.producer?.farm_name;
+  const isVerified = listing.producer?.verification_status === 'verifie';
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft-lg">
@@ -72,9 +74,10 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
       <div className="flex flex-1 flex-col p-4">
         {/* Attribution producteur */}
         {farmName && (
-          <p className="mb-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary-600">
-            <Sprout className="h-3.5 w-3.5" />
+          <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-primary-600">
+            <Sprout className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{farmName}</span>
+            {isVerified && <VerifiedBadge className="shrink-0 px-1.5 py-0" label="" />}
           </p>
         )}
 

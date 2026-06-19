@@ -1,6 +1,7 @@
 import { useState, type ComponentType } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {
+  BadgeCheck,
   BarChart3,
   FolderTree,
   Heart,
@@ -43,6 +44,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/admin/dashboard', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
     { to: '/admin/annonces', label: 'Modération annonces', icon: ListChecks },
     { to: '/admin/utilisateurs', label: 'Utilisateurs', icon: Users },
+    { to: '/admin/verifications', label: 'Vérifications', icon: BadgeCheck },
     { to: '/admin/categories', label: 'Catégories', icon: FolderTree },
     { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   ],

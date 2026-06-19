@@ -45,6 +45,8 @@ export interface Region {
   name: string;
 }
 
+export type VerificationStatus = 'non_verifie' | 'en_attente' | 'verifie' | 'rejete';
+
 export interface ProducerProfile {
   id: string;
   user_id: string;
@@ -53,6 +55,9 @@ export interface ProducerProfile {
   commune: string | null;
   description: string | null;
   profile_image: string | null;
+  verification_status: VerificationStatus;
+  verified_at: string | null;
+  verification_notes: string | null;
   created_at: string;
 }
 

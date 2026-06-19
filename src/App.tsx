@@ -30,6 +30,7 @@ import BuyerRequests from '@/pages/buyer/BuyerRequests';
 // Espace admin
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
+import AdminVerifications from '@/pages/admin/AdminVerifications';
 import AdminListings from '@/pages/admin/AdminListings';
 import AdminCategories from '@/pages/admin/AdminCategories';
 import AdminStats from '@/pages/admin/AdminStats';
@@ -95,6 +96,7 @@ export default function App() {
         >
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/utilisateurs" element={<AdminUsers />} />
+          <Route path="/admin/verifications" element={<AdminVerifications />} />
           <Route path="/admin/annonces" element={<AdminListings />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/statistiques" element={<AdminStats />} />

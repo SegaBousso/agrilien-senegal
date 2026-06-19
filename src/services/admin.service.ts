@@ -1,5 +1,12 @@
 import { supabase } from '@/lib/supabase';
-import type { BuyerType, Listing, ListingStatus, Profile, UserRole } from '@/types/database';
+import type {
+  BuyerType,
+  Listing,
+  ListingStatus,
+  Profile,
+  UserRole,
+  VerificationStatus,
+} from '@/types/database';
 
 export interface Paginated<T> {
   items: T[];
@@ -193,6 +200,43 @@ export async function fetchUserDetail(userId: string): Promise<AdminUserDetail> 
 
 export async function updateUserRole(userId: string, role: UserRole) {
   const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
+  if (error) throw error;
+}
+
+export interface VerificationRequest {
+  user_id: string;
+  farm_name: string;
+  region: string;
+  commune: string | null;
+  description: string | null;
+  verification_status: VerificationStatus;
+  verification_notes: string | null;
+  created_at: string;
+  profile: { full_name: string; email: string; phone: string | null } | null;
+}
+
+/** Demandes de vérification producteur (par statut, 'en_attente' par défaut). */
+export async function fetchVerifications(
+  status: VerificationStatus = 'en_attente',
+): Promise<VerificationRequest[]> {
+  const { data, error } = await supabase
+    .from('producer_profiles')
+    .select(
+      'user_id, farm_name, region, commune, description, verification_status, verification_notes, created_at, profile:profiles(full_name, email, phone)',
+    )
+    .eq('verification_status', status)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as VerificationRequest[];
+}
+
+/** Décision admin : vérifier (true) ou rejeter (false) un producteur. */
+export async function setProducerVerification(userId: string, verified: boolean, notes?: string) {
+  const { error } = await supabase.rpc('admin_set_producer_verification', {
+    p_user_id: userId,
+    p_verified: verified,
+    p_notes: notes ?? null,
+  });
   if (error) throw error;
 }
 
