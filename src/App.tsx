@@ -11,7 +11,6 @@ import CataloguePage from '@/pages/CataloguePage';
 import ListingDetailPage from '@/pages/ListingDetailPage';
 import ContactPage from '@/pages/ContactPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
-import IntechTestPage from '@/pages/IntechTestPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
@@ -49,7 +48,6 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/paiement/succes" element={<PaymentResultPage status="success" />} />
           <Route path="/paiement/annule" element={<PaymentResultPage status="cancel" />} />
-          <Route path="/paiement/intech-test" element={<IntechTestPage />} />
         </Route>
 
         {/* Authentification (sans layout dashboard) */}
