@@ -1,8 +1,20 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, BadgeCheck, Leaf, MapPin, RefreshCw, ShieldCheck, Sprout } from 'lucide-react';
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  Coins,
+  Leaf,
+  MapPin,
+  RefreshCw,
+  Route,
+  Scale,
+  ShieldCheck,
+  Sprout,
+} from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { HeroSearch } from '@/components/listings/HeroSearch';
-import { ListingCard } from '@/components/listings/ListingCard';
+import { EditorialListingCard } from '@/components/listings/EditorialListingCard';
+import { KraftTag } from '@/components/listings/KraftTag';
 import { ListingCardSkeleton, EmptyState } from '@/components/ui/States';
 import { useRecentListings } from '@/hooks/useListings';
 import { useCategories } from '@/hooks/useCatalog';
@@ -25,7 +37,16 @@ const MONO = '"Spline Sans Mono", ui-monospace, SFMono-Regular, monospace'; // r
 // Palette locale (non globale) : papier + encre + bissap (hibiscus) ; le vert
 // reste un SIGNAL (frais / vérifié), pas une couleur de fond.
 const BISSAP = '#8A1C3B';
+const BISSAP_SOFT = '#CE7E95'; // hibiscus clair, lisible sur fond encre
 const INK = '#17120C';
+
+// Les engagements du « pacte » — ensemble fixe (clauses), pas une séquence.
+const PACTE = [
+  { n: '01', icon: Coins, t: 'Sans commission', d: 'Vous gardez la valeur de votre récolte. AgriLien ne prélève rien sur la vente.' },
+  { n: '02', icon: BadgeCheck, t: 'Producteurs vérifiés', d: 'Un cachet « vérifié » après contrôle de l’exploitation par notre équipe.' },
+  { n: '03', icon: Route, t: 'Circuit court', d: 'Le producteur et l’acheteur se parlent en direct, sans intermédiaire inutile.' },
+  { n: '04', icon: Scale, t: 'Juste prix', d: 'Prix affiché à la source, région par région — et prix officiel rappelé sur les filières régulées.' },
+] as const;
 
 // Repli éditorial si le catalogue est vide (la maquette reste lisible en démo).
 const SAMPLE = [
@@ -68,24 +89,6 @@ function Cachet({ className = '', size = 132 }: { className?: string; size?: num
         />
       </g>
     </svg>
-  );
-}
-
-/** Étiquette de prix « kraft » — petit objet tactile de marché. */
-function KraftTag({ price, unit }: { price: number; unit: string }) {
-  return (
-    <div
-      className="relative flex items-center gap-1 rounded-md px-3 py-1.5 shadow-md"
-      style={{ background: '#E4D5B7', color: INK, fontFamily: MONO }}
-    >
-      <span
-        aria-hidden
-        className="absolute -left-1.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full"
-        style={{ background: 'rgb(var(--background))', boxShadow: 'inset 0 0 0 1px rgba(23,18,12,.2)' }}
-      />
-      <span className="text-sm font-semibold">{formatPrice(price)}</span>
-      <span className="text-[11px] opacity-70">/{unit}</span>
-    </div>
   );
 }
 
@@ -355,7 +358,7 @@ export default function HomePageV2() {
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => <ListingCardSkeleton key={i} />)
           ) : recent && recent.length > 0 ? (
-            recent.slice(0, 6).map((l) => <ListingCard key={l.id} listing={l} />)
+            recent.slice(0, 6).map((l) => <EditorialListingCard key={l.id} listing={l} />)
           ) : (
             <div className="sm:col-span-2 lg:col-span-3">
               <EmptyState
@@ -368,31 +371,58 @@ export default function HomePageV2() {
       </section>
 
       {/* ═══ LE PACTE — bande encre, garanties en registre ═══ */}
-      <section style={{ backgroundColor: INK }} className="py-16 lg:py-24">
-        <div className="container">
-          <Eyebrow>Le pacte AgriLien</Eyebrow>
-          <h2
-            className="mt-3 max-w-2xl text-3xl md:text-4xl"
-            style={{ fontFamily: ED, fontWeight: 700, color: '#FAF8F3', letterSpacing: '-0.01em' }}
-          >
-            Quatre engagements, sans astérisque.
-          </h2>
+      <section style={{ backgroundColor: INK }} className="relative overflow-hidden py-20 lg:py-28">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: BISSAP }}
+        />
+        <div className="container relative">
+          <div className="max-w-2xl">
+            <Eyebrow>
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: BISSAP_SOFT }} />
+              Le pacte AgriLien
+            </Eyebrow>
+            <h2
+              className="mt-4 text-4xl md:text-5xl"
+              style={{ fontFamily: ED, fontWeight: 800, color: '#FAF8F3', letterSpacing: '-0.02em', lineHeight: 1 }}
+            >
+              Quatre engagements,
+              <br />
+              <span style={{ color: BISSAP_SOFT }}>sans astérisque.</span>
+            </h2>
+            <p className="mt-5 text-base leading-relaxed" style={{ color: 'rgba(250,248,243,0.6)' }}>
+              Pas de petites lignes : ce qui suit s'applique à chaque transaction, du premier contact
+              à la poignée de main.
+            </p>
+          </div>
 
-          <div className="mt-12 grid gap-px overflow-hidden rounded-3xl sm:grid-cols-2 lg:grid-cols-4" style={{ backgroundColor: 'rgba(250,248,243,0.12)' }}>
-            {[
-              { n: '00', t: 'Sans commission', d: 'Vous gardez la valeur de votre récolte. AgriLien ne prélève rien sur la vente.' },
-              { n: '01', t: 'Producteurs vérifiés', d: 'Un cachet « vérifié » après contrôle de l\'exploitation par notre équipe.' },
-              { n: '02', t: 'Circuit court', d: 'Le producteur et l\'acheteur se parlent en direct, sans intermédiaire inutile.' },
-              { n: '03', t: 'Juste prix', d: 'Le prix est affiché clairement, à la source, région par région.' },
-            ].map((p) => (
-              <div key={p.n} className="p-7" style={{ backgroundColor: INK }}>
-                <span className="text-sm" style={{ fontFamily: MONO, color: BISSAP, letterSpacing: '0.1em' }}>
-                  {p.n}
-                </span>
-                <h3 className="mt-4 text-lg" style={{ fontFamily: ED, fontWeight: 600, color: '#FAF8F3' }}>
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {PACTE.map((p) => (
+              <div
+                key={p.n}
+                className="group relative overflow-hidden rounded-2xl bg-[rgba(250,248,243,0.04)] p-6 transition-colors duration-300 hover:bg-[rgba(250,248,243,0.07)]"
+              >
+                <span
+                  aria-hidden
+                  className="absolute inset-x-6 top-0 h-px origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+                  style={{ background: BISSAP_SOFT }}
+                />
+                <div className="flex items-center justify-between">
+                  <span
+                    className="flex h-12 w-12 items-center justify-center rounded-xl"
+                    style={{ background: 'rgba(138,28,59,0.22)', color: '#EBA6B8' }}
+                  >
+                    <p.icon className="h-5 w-5" />
+                  </span>
+                  <span className="text-xs" style={{ fontFamily: MONO, color: BISSAP_SOFT, letterSpacing: '0.12em' }}>
+                    {p.n}
+                  </span>
+                </div>
+                <h3 className="mt-5 text-lg" style={{ fontFamily: ED, fontWeight: 600, color: '#FAF8F3' }}>
                   {p.t}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: 'rgba(250,248,243,0.62)' }}>
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: 'rgba(250,248,243,0.6)' }}>
                   {p.d}
                 </p>
               </div>
