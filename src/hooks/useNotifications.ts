@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchNotifications,
+  fetchNotificationsPage,
   markAllNotificationsRead,
   markNotificationRead,
 } from '@/services/notifications.service';
@@ -17,6 +18,21 @@ export function useNotifications(userId: string | undefined) {
     enabled: !!userId,
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
+  });
+}
+
+/** Notifications paginées pour la page dédiée. La clé partage le préfixe
+ * ['notifications', userId] pour être invalidée par les mutations de lecture. */
+export function useNotificationsPage(
+  userId: string | undefined,
+  page: number,
+  unreadOnly: boolean,
+) {
+  return useQuery({
+    queryKey: ['notifications', userId, 'page', page, unreadOnly],
+    queryFn: () => fetchNotificationsPage({ page, unreadOnly }),
+    enabled: !!userId,
+    placeholderData: (prev) => prev,
   });
 }
 

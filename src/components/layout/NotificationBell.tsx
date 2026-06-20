@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bell, CheckCheck, Inbox, PackageCheck, MessageSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Bell, CheckCheck, Inbox, PackageCheck, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   useNotifications,
@@ -140,6 +141,14 @@ export function NotificationBell() {
               </ul>
             )}
           </div>
+
+          <Link
+            to="/notifications"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center gap-1.5 border-t border-gray-100 px-4 py-3 text-sm font-medium text-primary-700 transition-colors hover:bg-gray-50"
+          >
+            Voir toutes les notifications <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       )}
     </div>

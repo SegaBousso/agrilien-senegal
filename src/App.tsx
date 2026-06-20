@@ -16,6 +16,7 @@ import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
 import NavTestPage from '@/pages/NavTestPage';
+import NotificationsPage from '@/pages/NotificationsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 // Espace producteur
@@ -51,6 +52,14 @@ export default function App() {
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/paiement/succes" element={<PaymentResultPage status="success" />} />
           <Route path="/paiement/annule" element={<PaymentResultPage status="cancel" />} />
         </Route>
