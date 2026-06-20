@@ -73,7 +73,9 @@ export type ListingInput = z.infer<typeof listingSchema>;
 // --- Demande d'achat ----------------------------------------------------------
 export const purchaseRequestSchema = z.object({
   quantity_requested: z.coerce.number().positive('Quantité requise'),
-  message: z.string().min(10, 'Message trop court (10 caractères min.)').max(1000),
+  // Message facultatif : un acheteur qui n'écrit pas peut envoyer sa demande
+  // (ou choisir un message tout fait). Le contact se fait ensuite par appel.
+  message: z.string().max(1000, 'Message trop long').optional().or(z.literal('')),
 });
 export type PurchaseRequestInput = z.infer<typeof purchaseRequestSchema>;
 

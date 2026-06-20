@@ -22,6 +22,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner, ErrorState } from '@/components/ui/States';
 import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { OfficialPriceNotice } from '@/components/listings/OfficialPriceNotice';
+import { SpeakButton } from '@/components/a11y/SpeakButton';
 import { WeatherWidget } from '@/components/weather/WeatherWidget';
 import { useListing } from '@/hooks/useListings';
 import { useActiveOfficialPrices } from '@/hooks/useOfficialPrices';
@@ -33,6 +34,14 @@ import { useToast } from '@/context/ToastContext';
 import { purchaseRequestSchema, type PurchaseRequestInput } from '@/lib/validations';
 import { cn, formatDate, formatPrice, formatQuantity, initials } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
+
+// Messages tout faits : permettent d'envoyer une demande sans rien écrire.
+const QUICK_MESSAGES = [
+  'Je suis intéressé(e).',
+  'Quel est votre meilleur prix ?',
+  "C'est disponible quand ?",
+  'Pouvez-vous me rappeler ?',
+];
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -142,6 +151,13 @@ export default function ListingDetailPage() {
                 </span>
                 <span className="text-gray-500">/ {listing.unit}</span>
               </div>
+
+              {/* Lecture vocale (utilisateurs qui ne lisent pas) */}
+              <SpeakButton
+                className="mt-3"
+                label="Écouter l'annonce"
+                text={`${listing.title}. Prix : ${listing.price} francs le ${listing.unit}. Région : ${listing.region}. Quantité disponible : ${listing.quantity} ${listing.unit}.`}
+              />
 
               {matchedOfficial && (
                 <div className="mt-4">
@@ -320,6 +336,7 @@ function PurchaseRequestModal({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<PurchaseRequestInput>({
     resolver: zodResolver(purchaseRequestSchema),
@@ -362,7 +379,24 @@ function PurchaseRequestModal({
             {...register('quantity_requested')}
           />
         </Field>
-        <Field label="Message au producteur" htmlFor="message" error={errors.message?.message} required>
+        <Field
+          label="Message au producteur"
+          htmlFor="message"
+          error={errors.message?.message}
+          hint="Facultatif — touchez un message ci-dessous ou écrivez le vôtre."
+        >
+          <div className="mb-2 flex flex-wrap gap-2">
+            {QUICK_MESSAGES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setValue('message', m, { shouldValidate: true })}
+                className="rounded-full border border-border bg-muted px-3 py-1.5 text-sm text-gray-700 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700"
+              >
+                {m}
+              </button>
+            ))}
+          </div>
           <Textarea
             id="message"
             placeholder="Bonjour, je suis intéressé par votre récolte…"

@@ -4,6 +4,7 @@ import { Bell, CheckCheck, Inbox, Landmark, PackageCheck, MessageSquare, ShieldC
 import { Seo } from '@/components/Seo';
 import { Pagination } from '@/components/ui/Pagination';
 import { Spinner, EmptyState } from '@/components/ui/States';
+import { SpeakButton } from '@/components/a11y/SpeakButton';
 import { useAuth } from '@/context/AuthContext';
 import {
   useNotificationsPage,
@@ -134,13 +135,16 @@ export default function NotificationsPage() {
               {items.map((n) => {
                 const Icon = iconFor(n.type);
                 return (
-                  <li key={n.id} className="border-b border-border last:border-0">
+                  <li
+                    key={n.id}
+                    className={cn(
+                      'flex items-stretch border-b border-border last:border-0',
+                      !n.is_read && 'bg-primary-50/40',
+                    )}
+                  >
                     <button
                       onClick={() => open(n)}
-                      className={cn(
-                        'flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-muted',
-                        !n.is_read && 'bg-primary-50/40',
-                      )}
+                      className="flex flex-1 items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-muted"
                     >
                       <span
                         className={cn(
@@ -163,6 +167,9 @@ export default function NotificationsPage() {
                       </span>
                       {!n.is_read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-600" />}
                     </button>
+                    <div className="flex items-center pr-3">
+                      <SpeakButton text={n.message} label="" />
+                    </div>
                   </li>
                 );
               })}
