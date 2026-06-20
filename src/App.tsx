@@ -15,6 +15,7 @@ import PaymentResultPage from '@/pages/PaymentResultPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
+import NavTestPage from '@/pages/NavTestPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 // Espace producteur
@@ -105,6 +106,9 @@ export default function App() {
           <Route path="/admin/prix-officiels" element={<AdminOfficialPrices />} />
           <Route path="/admin/statistiques" element={<AdminStats />} />
         </Route>
+
+        {/* Page de test : navbar alternative (hors PublicLayout) */}
+        <Route path="/nav-test" element={<NavTestPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

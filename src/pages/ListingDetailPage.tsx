@@ -22,6 +22,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Spinner, ErrorState } from '@/components/ui/States';
 import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { OfficialPriceNotice } from '@/components/listings/OfficialPriceNotice';
+import { WeatherWidget } from '@/components/weather/WeatherWidget';
 import { useListing } from '@/hooks/useListings';
 import { useActiveOfficialPrices } from '@/hooks/useOfficialPrices';
 import { matchOfficialPrice } from '@/lib/officialPrice';
@@ -204,6 +205,9 @@ export default function ListingDetailPage() {
                 Annonce vérifiée par l'équipe AgriLien
               </div>
             </div>
+
+            {/* Météo de la région (planifier récupération / livraison) */}
+            <WeatherWidget region={listing.region} compact className="mt-4" />
           </div>
         </div>
 

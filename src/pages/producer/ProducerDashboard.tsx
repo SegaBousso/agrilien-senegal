@@ -8,11 +8,13 @@ import { Card, CardBody, CardTitle } from '@/components/ui/Card';
 import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
 import { Panel, PanelEmpty } from '@/components/dashboard/Panel';
 import { VerificationCard } from '@/components/producer/VerificationCard';
+import { WeatherWidget } from '@/components/weather/WeatherWidget';
 import { BarChart } from '@/components/charts/BarChart';
 import { ListingStatusBadge, RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyListings } from '@/hooks/useListings';
 import { useReceivedRequests } from '@/hooks/useRequests';
 import { useProducerImpactStats, useProducerRevenueTrend } from '@/hooks/useProducerStats';
+import { useMyProducerProfile } from '@/hooks/useVerification';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice, formatQuantity, formatRelative, initials } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
@@ -24,6 +26,7 @@ export default function ProducerDashboard() {
   const { data: requests } = useReceivedRequests(listingIds);
   const { data: impact } = useProducerImpactStats(!!producerId);
   const { data: revenueTrend = [] } = useProducerRevenueTrend(!!producerId);
+  const { data: producerProfile } = useMyProducerProfile(profile?.id);
 
   if (isLoading) return <Spinner />;
 
@@ -46,8 +49,11 @@ export default function ProducerDashboard() {
         }
       />
 
-      <div className="mb-6">
-        <VerificationCard userId={profile?.id} />
+      <div className="mb-6 grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <VerificationCard userId={profile?.id} />
+        </div>
+        <WeatherWidget region={producerProfile?.region} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
