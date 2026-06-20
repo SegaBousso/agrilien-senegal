@@ -32,7 +32,7 @@ export default function NavTestPage() {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link to="/">
               <Button variant="outline">
-                <ArrowLeft className="h-4 w-4" /> Voir la navbar standard
+                <ArrowLeft className="h-4 w-4" /> Aller au site
               </Button>
             </Link>
             <Link to="/accueil-2">

@@ -18,7 +18,7 @@ import { KraftTag } from '@/components/listings/KraftTag';
 import { ListingCardSkeleton, EmptyState } from '@/components/ui/States';
 import { useRecentListings } from '@/hooks/useListings';
 import { useCategories } from '@/hooks/useCatalog';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, initials } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE, SENEGAL_REGIONS } from '@/lib/constants';
 import type { ListingWithRelations } from '@/types/database';
 
@@ -39,6 +39,33 @@ const MONO = '"Spline Sans Mono", ui-monospace, SFMono-Regular, monospace'; // r
 const BISSAP = '#8A1C3B';
 const BISSAP_SOFT = '#CE7E95'; // hibiscus clair, lisible sur fond encre
 const INK = '#17120C';
+
+// Témoignages — personas de démo, pour la cohérence avec le catalogue.
+const FEATURED_VOICE = {
+  quote:
+    'Avant, mes mangues partaient au rabais ou pourrissaient au champ. Sur AgriLien je fixe mon prix, je vois qui achète, et j’écoule ma récolte auprès de restaurants de Dakar en deux jours.',
+  name: 'Awa Diop',
+  role: 'Productrice',
+  place: 'Ferme des Niayes · Dakar',
+  verified: true,
+};
+
+const VOICES = [
+  {
+    quote: 'Je commande mes légumes directement au producteur. Plus frais, moins cher — et je sais exactement d’où ça vient.',
+    name: 'Fatou Ndiaye',
+    role: 'Acheteuse',
+    place: 'Restaurant Teranga · Dakar',
+    verified: false,
+  },
+  {
+    quote: 'Le badge vérifié change tout : les acheteurs me font confiance avant même de m’appeler.',
+    name: 'Modou Sarr',
+    role: 'Producteur',
+    place: 'Exploitation du Saloum · Kaolack',
+    verified: true,
+  },
+];
 
 // Les engagements du « pacte » — ensemble fixe (clauses), pas une séquence.
 const PACTE = [
@@ -471,6 +498,79 @@ export default function HomePageV2() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ PAROLES DU MARCHÉ — témoignages ═══ */}
+      <section className="border-t border-border">
+        <div className="container py-16 lg:py-24">
+          <Eyebrow>
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: BISSAP }} />
+            Paroles du marché
+          </Eyebrow>
+          <h2
+            className="mt-4 max-w-2xl text-3xl text-gray-900 md:text-4xl"
+            style={{ fontFamily: ED, fontWeight: 700, letterSpacing: '-0.01em' }}
+          >
+            Celles et ceux qui font tourner le marché.
+          </h2>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {/* Citation vedette */}
+            <figure className="relative overflow-hidden rounded-3xl border border-border bg-surface p-8 shadow-soft lg:col-span-2 lg:p-10">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-1 -top-10 select-none"
+                style={{ fontFamily: ED, fontWeight: 800, fontSize: '10rem', lineHeight: 1, color: 'rgba(138,28,59,0.09)' }}
+              >
+                ”
+              </span>
+              <blockquote
+                className="relative max-w-2xl text-2xl leading-snug text-gray-900 md:text-[1.7rem]"
+                style={{ fontFamily: ED, fontWeight: 600, letterSpacing: '-0.01em' }}
+              >
+                « {FEATURED_VOICE.quote} »
+              </blockquote>
+              <figcaption className="mt-7 flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-100 font-display text-sm font-bold text-primary-700">
+                  {initials(FEATURED_VOICE.name)}
+                </span>
+                <div>
+                  <p className="flex items-center gap-1.5 font-semibold text-gray-900">
+                    {FEATURED_VOICE.name}
+                    {FEATURED_VOICE.verified && <BadgeCheck className="h-4 w-4" style={{ color: '#16a34a' }} />}
+                  </p>
+                  <p className="text-xs uppercase text-gray-500" style={{ fontFamily: MONO, letterSpacing: '0.1em' }}>
+                    {FEATURED_VOICE.role} · {FEATURED_VOICE.place}
+                  </p>
+                </div>
+              </figcaption>
+            </figure>
+
+            {/* Voix d'appui */}
+            <div className="flex flex-col gap-6">
+              {VOICES.map((v) => (
+                <figure key={v.name} className="relative overflow-hidden rounded-3xl border border-border bg-surface p-6 shadow-soft">
+                  <span aria-hidden className="absolute inset-x-6 top-0 h-px" style={{ background: BISSAP }} />
+                  <blockquote className="text-base leading-relaxed text-gray-700">« {v.quote} »</blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-display text-xs font-bold text-gray-700">
+                      {initials(v.name)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
+                        {v.name}
+                        {v.verified && <BadgeCheck className="h-3.5 w-3.5" style={{ color: '#16a34a' }} />}
+                      </p>
+                      <p className="truncate text-[11px] uppercase text-gray-500" style={{ fontFamily: MONO, letterSpacing: '0.08em' }}>
+                        {v.role} · {v.place}
+                      </p>
+                    </div>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
         </div>
       </section>

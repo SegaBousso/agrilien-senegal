@@ -16,7 +16,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { Navbar } from './Navbar';
+import { MarketRegisterNavbar } from './MarketRegisterNavbar';
 import { cn, initials } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import type { UserRole } from '@/types/database';
@@ -66,7 +66,7 @@ export function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <Navbar />
+      <MarketRegisterNavbar />
       <div className="container flex flex-1 gap-6 py-6">
         {/* Sidebar */}
         <aside
