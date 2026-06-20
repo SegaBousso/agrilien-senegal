@@ -171,8 +171,6 @@ export default function HomePageV2() {
 
           {/* Colonne « index du jour » — ledger des offres réelles */}
           <aside className="hero-reveal relative" style={{ animationDelay: '0.18s' }}>
-            <Cachet className="absolute -left-6 -top-9 z-10 hidden rotate-[-9deg] lg:block" size={120} />
-
             <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-soft-lg">
               <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
                 <span className="text-xs uppercase text-gray-900" style={{ fontFamily: MONO, letterSpacing: '0.18em' }}>
