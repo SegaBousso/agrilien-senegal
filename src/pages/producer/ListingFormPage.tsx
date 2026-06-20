@@ -11,6 +11,9 @@ import { Spinner } from '@/components/ui/States';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useCreateListing, useListing, useUpdateListing } from '@/hooks/useListings';
 import { useCategories } from '@/hooks/useCatalog';
+import { useActiveOfficialPrices } from '@/hooks/useOfficialPrices';
+import { matchOfficialPrice } from '@/lib/officialPrice';
+import { OfficialPriceNotice } from '@/components/listings/OfficialPriceNotice';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { addListingImage, uploadListingImage } from '@/services/catalog.service';
@@ -55,6 +58,13 @@ export default function ListingFormPage() {
   const selectedCategoryId = watch('category_id');
   const isLivestock =
     categories?.find((c) => c.id === selectedCategoryId)?.is_livestock ?? false;
+
+  // Prix de référence officiel applicable au titre saisi (filière régulée).
+  const { data: officialPrices } = useActiveOfficialPrices();
+  const watchedTitle = watch('title');
+  const watchedUnit = watch('unit');
+  const watchedPrice = watch('price');
+  const matchedOfficial = matchOfficialPrice(watchedTitle ?? '', officialPrices ?? []);
 
   // Pré-remplissage en mode édition.
   useEffect(() => {
@@ -218,6 +228,15 @@ export default function ListingFormPage() {
                   <Input id="price" type="number" step="any" min={0} {...register('price')} />
                 </Field>
               </div>
+
+              {/* Avertissement « prix officiel » pour les filières régulées (ex. arachide). */}
+              {matchedOfficial && matchedOfficial.unit === watchedUnit && (
+                <OfficialPriceNotice
+                  official={matchedOfficial}
+                  price={Number(watchedPrice) || 0}
+                  compact
+                />
+              )}
             </CardBody>
           </Card>
 

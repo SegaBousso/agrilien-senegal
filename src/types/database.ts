@@ -134,6 +134,22 @@ export interface Favorite {
   created_at: string;
 }
 
+/** Prix de référence officiel (filière régulée, ex. arachide). */
+export interface OfficialPrice {
+  id: string;
+  label: string;
+  keyword: string;
+  campaign: string | null;
+  price: number;
+  unit: string;
+  source: string | null;
+  starts_on: string | null;
+  ends_on: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Notification {
   id: string;
   user_id: string;

@@ -86,6 +86,20 @@ export const categorySchema = z.object({
 });
 export type CategoryInput = z.infer<typeof categorySchema>;
 
+// --- Prix officiel (admin) ----------------------------------------------------
+export const officialPriceSchema = z.object({
+  label: z.string().min(2, 'Libellé requis'),
+  keyword: z.string().min(2, 'Mot-clé requis'),
+  campaign: z.string().optional().or(z.literal('')),
+  price: z.coerce.number().positive('Prix invalide'),
+  unit: z.enum(UNITS),
+  source: z.string().optional().or(z.literal('')),
+  starts_on: z.string().optional().or(z.literal('')),
+  ends_on: z.string().optional().or(z.literal('')),
+  active: z.boolean().default(true),
+});
+export type OfficialPriceInput = z.infer<typeof officialPriceSchema>;
+
 // --- Contact ------------------------------------------------------------------
 export const contactSchema = z.object({
   name: z.string().min(2, 'Nom requis'),

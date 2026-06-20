@@ -34,6 +34,7 @@ import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminVerifications from '@/pages/admin/AdminVerifications';
 import AdminListings from '@/pages/admin/AdminListings';
 import AdminCategories from '@/pages/admin/AdminCategories';
+import AdminOfficialPrices from '@/pages/admin/AdminOfficialPrices';
 import AdminStats from '@/pages/admin/AdminStats';
 
 export default function App() {
@@ -101,6 +102,7 @@ export default function App() {
           <Route path="/admin/verifications" element={<AdminVerifications />} />
           <Route path="/admin/annonces" element={<AdminListings />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path="/admin/prix-officiels" element={<AdminOfficialPrices />} />
           <Route path="/admin/statistiques" element={<AdminStats />} />
         </Route>
 

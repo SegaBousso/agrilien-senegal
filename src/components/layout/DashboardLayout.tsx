@@ -6,6 +6,7 @@ import {
   FolderTree,
   Heart,
   Inbox,
+  Landmark,
   LayoutDashboard,
   ListChecks,
   Menu,
@@ -46,6 +47,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/admin/utilisateurs', label: 'Utilisateurs', icon: Users },
     { to: '/admin/verifications', label: 'Vérifications', icon: BadgeCheck },
     { to: '/admin/categories', label: 'Catégories', icon: FolderTree },
+    { to: '/admin/prix-officiels', label: 'Prix officiels', icon: Landmark },
     { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   ],
 };

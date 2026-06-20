@@ -21,7 +21,10 @@ import { Field, Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner, ErrorState } from '@/components/ui/States';
 import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
+import { OfficialPriceNotice } from '@/components/listings/OfficialPriceNotice';
 import { useListing } from '@/hooks/useListings';
+import { useActiveOfficialPrices } from '@/hooks/useOfficialPrices';
+import { matchOfficialPrice } from '@/lib/officialPrice';
 import { useFavoriteIds, useToggleFavorite } from '@/hooks/useFavorites';
 import { useCreatePurchaseRequest } from '@/hooks/useRequests';
 import { useAuth } from '@/context/AuthContext';
@@ -35,6 +38,7 @@ export default function ListingDetailPage() {
   const { data: listing, isLoading, isError } = useListing(id);
   const { session, role } = useAuth();
   const { data: favoriteIds } = useFavoriteIds();
+  const { data: officialPrices } = useActiveOfficialPrices();
   const toggleFav = useToggleFavorite();
   const { toast } = useToast();
   const [activeImage, setActiveImage] = useState(0);
@@ -62,6 +66,7 @@ export default function ListingDetailPage() {
   const isFavorite = (favoriteIds ?? []).includes(listing.id);
   const isBuyer = role === 'buyer';
   const farmName = listing.producer?.farm_name ?? 'Producteur';
+  const matchedOfficial = matchOfficialPrice(listing.title, officialPrices ?? []);
 
   return (
     <>
@@ -136,6 +141,12 @@ export default function ListingDetailPage() {
                 </span>
                 <span className="text-gray-500">/ {listing.unit}</span>
               </div>
+
+              {matchedOfficial && (
+                <div className="mt-4">
+                  <OfficialPriceNotice official={matchedOfficial} price={listing.price} />
+                </div>
+              )}
 
               <dl className="mt-6 grid grid-cols-2 gap-3">
                 <Info icon={Package} label="Quantité" value={formatQuantity(listing.quantity, listing.unit)} />
