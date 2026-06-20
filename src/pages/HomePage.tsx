@@ -19,6 +19,7 @@ import {
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { HeroSearch } from '@/components/listings/HeroSearch';
+import { RegionWeather } from '@/components/weather/RegionWeather';
 import { ListingCard } from '@/components/listings/ListingCard';
 import { ListingCardSkeleton, EmptyState } from '@/components/ui/States';
 import { useRecentListings } from '@/hooks/useListings';
@@ -319,6 +320,11 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* MÉTÉO LOCALE */}
+      <section className="container py-16">
+        <RegionWeather />
+      </section>
 
       {/* PRODUITS RÉCENTS */}
       <section className="container py-16">

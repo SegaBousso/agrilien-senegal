@@ -21,6 +21,21 @@ export const REGION_COORDS: Record<string, { lat: number; lon: number }> = {
   Matam: { lat: 15.66, lon: -13.25 },
 };
 
+/** Région du Sénégal la plus proche de coordonnées données (pour la géoloc). */
+export function nearestRegion(lat: number, lon: number): string {
+  let best = 'Dakar';
+  let bestDist = Infinity;
+  for (const [region, c] of Object.entries(REGION_COORDS)) {
+    // Distance euclidienne approchée (suffisante pour départager 14 points).
+    const d = (c.lat - lat) ** 2 + (c.lon - lon) ** 2;
+    if (d < bestDist) {
+      bestDist = d;
+      best = region;
+    }
+  }
+  return best;
+}
+
 export interface WeatherDay {
   date: string;
   code: number;
