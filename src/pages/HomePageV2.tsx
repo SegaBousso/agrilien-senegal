@@ -167,23 +167,6 @@ export default function HomePageV2() {
               </div>
             )}
 
-            {/* bandeau de garanties en registre */}
-            <dl className="mt-10 grid max-w-lg grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border">
-              {[
-                { k: '0%', v: 'Commission' },
-                { k: '14', v: 'Régions' },
-                { k: '100%', v: 'Local' },
-              ].map((s) => (
-                <div key={s.v} className="bg-surface px-4 py-4">
-                  <dt className="text-2xl text-gray-900" style={{ fontFamily: ED, fontWeight: 700 }}>
-                    {s.k}
-                  </dt>
-                  <dd className="mt-0.5 text-xs uppercase text-gray-500" style={{ fontFamily: MONO, letterSpacing: '0.12em' }}>
-                    {s.v}
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
           {/* Colonne « index du jour » — ledger des offres réelles */}
@@ -241,6 +224,27 @@ export default function HomePageV2() {
               Le pictogramme <BadgeCheck className="inline h-3.5 w-3.5" style={{ color: '#16a34a' }} /> = producteur vérifié.
             </p>
           </aside>
+        </div>
+
+        {/* Bande registre — repères clés, pleine largeur, au pied du hero */}
+        <div className="relative border-t border-border">
+          <dl className="container grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+            {[
+              { k: '0%', v: 'Commission' },
+              { k: '14', v: 'Régions couvertes' },
+              { k: '100%', v: 'Produits locaux' },
+              { k: '24/7', v: 'Accessible' },
+            ].map((s) => (
+              <div key={s.v} className="px-1 py-6" style={{ backgroundColor: 'rgb(var(--background))' }}>
+                <dt className="text-3xl text-gray-900" style={{ fontFamily: ED, fontWeight: 800 }}>
+                  {s.k}
+                </dt>
+                <dd className="mt-1 text-xs uppercase text-gray-500" style={{ fontFamily: MONO, letterSpacing: '0.12em' }}>
+                  {s.v}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
         {/* Ruban du terroir — couverture nationale (défile lentement) */}
