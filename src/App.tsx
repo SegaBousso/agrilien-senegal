@@ -6,6 +6,7 @@ import { ScrollToTop } from '@/components/ScrollToTop';
 
 // Pages publiques
 import HomePage from '@/pages/HomePage';
+import HomePageV2 from '@/pages/HomePageV2';
 import AboutPage from '@/pages/AboutPage';
 import CataloguePage from '@/pages/CataloguePage';
 import ListingDetailPage from '@/pages/ListingDetailPage';
@@ -43,6 +44,7 @@ export default function App() {
         {/* Routes publiques */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/accueil-2" element={<HomePageV2 />} />
           <Route path="/a-propos" element={<AboutPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />
