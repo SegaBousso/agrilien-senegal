@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, BadgeCheck, Leaf, MapPin, ShieldCheck, Sprout } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, Leaf, MapPin, RefreshCw, ShieldCheck, Sprout } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { HeroSearch } from '@/components/listings/HeroSearch';
 import { ListingCard } from '@/components/listings/ListingCard';
@@ -7,7 +7,16 @@ import { ListingCardSkeleton, EmptyState } from '@/components/ui/States';
 import { useRecentListings } from '@/hooks/useListings';
 import { useCategories } from '@/hooks/useCatalog';
 import { formatPrice } from '@/lib/utils';
-import { SENEGAL_REGIONS } from '@/lib/constants';
+import { PLACEHOLDER_IMAGE, SENEGAL_REGIONS } from '@/lib/constants';
+import type { ListingWithRelations } from '@/types/database';
+
+// Image de secours pour la vedette du hero (catalogue vide en démo).
+const FALLBACK_HERO_IMG =
+  'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=900&q=80';
+
+function mainImage(l: ListingWithRelations): string {
+  return l.images?.find((i) => i.is_main)?.image_url ?? l.images?.[0]?.image_url ?? PLACEHOLDER_IMAGE;
+}
 
 // ── Identité typographique propre à cette page (test) ───────────────────────
 const ED = '"Bricolage Grotesque", Lexend, system-ui, sans-serif'; // display éditorial
@@ -62,6 +71,24 @@ function Cachet({ className = '', size = 132 }: { className?: string; size?: num
   );
 }
 
+/** Étiquette de prix « kraft » — petit objet tactile de marché. */
+function KraftTag({ price, unit }: { price: number; unit: string }) {
+  return (
+    <div
+      className="relative flex items-center gap-1 rounded-md px-3 py-1.5 shadow-md"
+      style={{ background: '#E4D5B7', color: INK, fontFamily: MONO }}
+    >
+      <span
+        aria-hidden
+        className="absolute -left-1.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full"
+        style={{ background: 'rgb(var(--background))', boxShadow: 'inset 0 0 0 1px rgba(23,18,12,.2)' }}
+      />
+      <span className="text-sm font-semibold">{formatPrice(price)}</span>
+      <span className="text-[11px] opacity-70">/{unit}</span>
+    </div>
+  );
+}
+
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <span
@@ -79,16 +106,33 @@ export default function HomePageV2() {
 
   const today = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' }).format(new Date());
 
-  const indexRows =
-    recent && recent.length > 0
-      ? recent.slice(0, 5).map((l) => ({
-          region: l.region,
-          title: l.title,
-          price: l.price,
-          unit: l.unit,
-          verified: l.producer?.verification_status === 'verifie',
-        }))
-      : SAMPLE;
+  const live = !!(recent && recent.length > 0);
+  const isSample = !live;
+
+  // Vedette = 1re annonce réelle (photo + étiquette) ; repli sur un exemple clair.
+  const featured = live
+    ? {
+        id: recent![0].id,
+        region: recent![0].region,
+        title: recent![0].title,
+        price: recent![0].price,
+        unit: recent![0].unit,
+        verified: recent![0].producer?.verification_status === 'verifie',
+        image: mainImage(recent![0]),
+      }
+    : { id: null as string | null, ...SAMPLE[0], image: FALLBACK_HERO_IMG };
+
+  // Le reste alimente la liste « index ».
+  const indexRows = live
+    ? recent!.slice(1, 6).map((l) => ({
+        id: l.id as string | null,
+        region: l.region,
+        title: l.title,
+        price: l.price,
+        unit: l.unit,
+        verified: l.producer?.verification_status === 'verifie',
+      }))
+    : SAMPLE.slice(1).map((s) => ({ id: null as string | null, ...s }));
 
   return (
     <>
@@ -135,9 +179,7 @@ export default function HomePageV2() {
               className="mt-6 text-balance text-5xl leading-[0.95] text-gray-900 md:text-6xl lg:text-[4.6rem]"
               style={{ fontFamily: ED, fontWeight: 800, letterSpacing: '-0.02em' }}
             >
-              Qui récolte quoi,
-              <br />
-              où, et à{' '}
+              Qui récolte quoi, où, et à{' '}
               <span style={{ color: BISSAP }}>quel juste prix.</span>
             </h1>
 
@@ -189,20 +231,52 @@ export default function HomePageV2() {
           {/* Colonne « index du jour » — ledger des offres réelles */}
           <aside className="hero-reveal relative" style={{ animationDelay: '0.18s' }}>
             <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-soft-lg">
-              <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+              {/* Vedette : vraie photo produit + étiquette kraft */}
+              <Link
+                to={featured.id ? `/annonce/${featured.id}` : '/catalogue'}
+                className="group relative block"
+              >
+                <img
+                  src={featured.image}
+                  alt={featured.title}
+                  className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                />
+                <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                {isSample && (
+                  <span
+                    className="absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white backdrop-blur"
+                    style={{ fontFamily: MONO, letterSpacing: '0.08em' }}
+                  >
+                    EXEMPLE
+                  </span>
+                )}
+                <div className="absolute right-4 top-4 rotate-[6deg]">
+                  <KraftTag price={featured.price} unit={featured.unit} />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                  <p className="flex items-center gap-1 text-xs" style={{ fontFamily: MONO, letterSpacing: '0.08em' }}>
+                    <MapPin className="h-3.5 w-3.5" /> {featured.region}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-lg font-semibold" style={{ fontFamily: ED }}>
+                    <span className="truncate">{featured.title}</span>
+                    {featured.verified && <BadgeCheck className="h-4 w-4 shrink-0" style={{ color: '#86efac' }} />}
+                  </p>
+                </div>
+              </Link>
+
+              <div className="flex items-center justify-between border-y border-border px-5 py-3.5">
                 <span className="text-xs uppercase text-gray-900" style={{ fontFamily: MONO, letterSpacing: '0.18em' }}>
                   L'index du jour
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs" style={{ fontFamily: MONO, color: '#16a34a' }}>
-                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary-600" />
-                  EN DIRECT
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500" style={{ fontFamily: MONO }}>
+                  <RefreshCw className="h-3.5 w-3.5" /> Mis à jour {today}
                 </span>
               </div>
 
               <ul>
                 {indexRows.map((r, i) => (
                   <li key={i} className="ah2-row border-b border-border last:border-0">
-                    <Link to="/catalogue" className="flex items-center gap-3 px-5 py-3.5">
+                    <Link to={r.id ? `/annonce/${r.id}` : '/catalogue'} className="flex items-center gap-3 px-5 py-3.5">
                       <span className="w-6 shrink-0 text-xs text-gray-400" style={{ fontFamily: MONO }}>
                         {String(i + 1).padStart(2, '0')}
                       </span>
@@ -236,7 +310,9 @@ export default function HomePageV2() {
 
             <p className="mt-3 flex items-center gap-1.5 text-xs text-gray-500" style={{ fontFamily: MONO }}>
               <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#16a34a' }} />
-              Le pictogramme <BadgeCheck className="inline h-3.5 w-3.5" style={{ color: '#16a34a' }} /> = producteur vérifié.
+              {isSample
+                ? 'Offres d’exemple — le catalogue se remplit.'
+                : 'Le badge vert indique un producteur vérifié.'}
             </p>
           </aside>
         </div>
@@ -386,8 +462,8 @@ export default function HomePageV2() {
             </span>
           </Link>
 
-          <Link to="/catalogue" className="group p-9 transition" style={{ backgroundColor: INK }}>
-            <span className="inline-flex items-center gap-2 text-xs uppercase" style={{ fontFamily: MONO, letterSpacing: '0.22em', color: '#86efac' }}>
+          <Link to="/catalogue" className="group p-9 transition" style={{ backgroundColor: BISSAP }}>
+            <span className="inline-flex items-center gap-2 text-xs uppercase" style={{ fontFamily: MONO, letterSpacing: '0.22em', color: 'rgba(250,248,243,0.85)' }}>
               <MapPin className="h-3.5 w-3.5" /> Vous achetez
             </span>
             <h3 className="mt-3 text-2xl" style={{ fontFamily: ED, fontWeight: 700, color: '#FAF8F3' }}>
