@@ -46,8 +46,10 @@ export default function App() {
       <Routes>
         {/* Routes publiques */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/accueil-2" element={<HomePageV2 />} />
+          {/* Page d'accueil officielle (ex-/accueil-2). L'ancienne reste en
+              brouillon sur /accueil-classique au cas où. */}
+          <Route path="/" element={<HomePageV2 />} />
+          <Route path="/accueil-classique" element={<HomePage />} />
           <Route path="/a-propos" element={<AboutPage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />

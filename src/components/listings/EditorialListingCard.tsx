@@ -4,6 +4,7 @@ import { useToggleFavorite } from '@/hooks/useFavorites';
 import { useAuth } from '@/context/AuthContext';
 import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { KraftTag } from '@/components/listings/KraftTag';
+import { RatingChip } from '@/components/reviews/Stars';
 import { cn, formatQuantity } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 import type { ListingWithRelations } from '@/types/database';
@@ -89,9 +90,14 @@ export function EditorialListingCard({
         </p>
 
         <div className="mt-auto flex items-center justify-between border-t border-border pt-3.5">
-          {listing.producer?.farm_name && (
-            <span className="truncate text-xs text-gray-500">{listing.producer.farm_name}</span>
-          )}
+          <div className="min-w-0">
+            {listing.producer?.farm_name && (
+              <span className="block truncate text-xs text-gray-500">{listing.producer.farm_name}</span>
+            )}
+            {listing.producer && (
+              <RatingChip avg={listing.producer.rating_avg} count={listing.producer.rating_count} className="mt-0.5" />
+            )}
+          </div>
           <Link
             to={`/annonce/${listing.id}`}
             className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold"

@@ -58,6 +58,19 @@ export interface ProducerProfile {
   verification_status: VerificationStatus;
   verified_at: string | null;
   verification_notes: string | null;
+  rating_avg: number;
+  rating_count: number;
+  created_at: string;
+}
+
+export interface ProducerReview {
+  id: string;
+  producer_id: string;
+  buyer_id: string;
+  transaction_id: string;
+  buyer_name: string | null;
+  rating: number;
+  comment: string | null;
   created_at: string;
 }
 

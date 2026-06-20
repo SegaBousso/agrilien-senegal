@@ -24,6 +24,9 @@ import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
 import { OfficialPriceNotice } from '@/components/listings/OfficialPriceNotice';
 import { SpeakButton } from '@/components/a11y/SpeakButton';
 import { WeatherWidget } from '@/components/weather/WeatherWidget';
+import { StarRating } from '@/components/reviews/Stars';
+import { ReviewList } from '@/components/reviews/ReviewList';
+import { useProducerReviews } from '@/hooks/useReviews';
 import { useListing } from '@/hooks/useListings';
 import { useActiveOfficialPrices } from '@/hooks/useOfficialPrices';
 import { matchOfficialPrice } from '@/lib/officialPrice';
@@ -49,6 +52,7 @@ export default function ListingDetailPage() {
   const { session, role } = useAuth();
   const { data: favoriteIds } = useFavoriteIds();
   const { data: officialPrices } = useActiveOfficialPrices();
+  const { data: producerReviews = [] } = useProducerReviews(listing?.producer?.id);
   const toggleFav = useToggleFavorite();
   const { toast } = useToast();
   const [activeImage, setActiveImage] = useState(0);
@@ -77,6 +81,7 @@ export default function ListingDetailPage() {
   const isBuyer = role === 'buyer';
   const farmName = listing.producer?.farm_name ?? 'Producteur';
   const matchedOfficial = matchOfficialPrice(listing.title, officialPrices ?? []);
+  const producer = listing.producer;
 
   return (
     <>
@@ -260,6 +265,21 @@ export default function ListingDetailPage() {
                   )}
                 </div>
               </div>
+              {/* Réputation */}
+              <div className="mt-3 flex items-center gap-2">
+                {producer && producer.rating_count > 0 ? (
+                  <>
+                    <StarRating value={producer.rating_avg} size={16} />
+                    <span className="text-sm font-semibold text-gray-900">{producer.rating_avg.toFixed(1)}</span>
+                    <span className="text-xs text-gray-500">
+                      ({producer.rating_count} avis)
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-gray-400">Pas encore d'avis</span>
+                )}
+              </div>
+
               <p className="mt-4 flex items-center gap-2 text-sm text-gray-600">
                 <MapPin className="h-4 w-4 text-gray-400" />
                 {listing.producer?.region}
@@ -267,6 +287,13 @@ export default function ListingDetailPage() {
               </p>
               {listing.producer?.description && (
                 <p className="mt-3 text-sm leading-relaxed text-gray-600">{listing.producer.description}</p>
+              )}
+
+              {producerReviews.length > 0 && (
+                <div className="mt-5 border-t border-border pt-4">
+                  <h3 className="mb-3 text-sm font-semibold text-gray-900">Avis vérifiés</h3>
+                  <ReviewList reviews={producerReviews} />
+                </div>
               )}
             </div>
           </aside>

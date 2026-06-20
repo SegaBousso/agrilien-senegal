@@ -3,6 +3,7 @@ import { ArrowRight, Heart, MapPin, Package, Sprout } from 'lucide-react';
 import { useToggleFavorite } from '@/hooks/useFavorites';
 import { useAuth } from '@/context/AuthContext';
 import { VerifiedBadge } from '@/components/producer/VerifiedBadge';
+import { RatingChip } from '@/components/reviews/Stars';
 import { cn, formatPrice, formatQuantity } from '@/lib/utils';
 import { PLACEHOLDER_IMAGE } from '@/lib/constants';
 import type { ListingWithRelations } from '@/types/database';
@@ -94,6 +95,9 @@ export function ListingCard({ listing, isFavorite = false, showFavorite = true }
           <span className="inline-flex items-center gap-1">
             <Package className="h-3.5 w-3.5" /> {formatQuantity(listing.quantity, listing.unit)}
           </span>
+          {listing.producer && (
+            <RatingChip avg={listing.producer.rating_avg} count={listing.producer.rating_count} />
+          )}
         </div>
 
         {/* Pied : séparateur fin + CTA avec flèche qui glisse au survol */}

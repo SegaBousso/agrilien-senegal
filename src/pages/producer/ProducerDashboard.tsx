@@ -9,6 +9,7 @@ import { PageHeader, StatCard } from '@/components/dashboard/PageHeader';
 import { Panel, PanelEmpty } from '@/components/dashboard/Panel';
 import { VerificationCard } from '@/components/producer/VerificationCard';
 import { WeatherWidget } from '@/components/weather/WeatherWidget';
+import { StarRating } from '@/components/reviews/Stars';
 import { BarChart } from '@/components/charts/BarChart';
 import { ListingStatusBadge, RequestStatusBadge } from '@/components/dashboard/StatusBadge';
 import { useMyListings } from '@/hooks/useListings';
@@ -55,6 +56,21 @@ export default function ProducerDashboard() {
         </div>
         <WeatherWidget region={producerProfile?.region} />
       </div>
+
+      {producerProfile && (
+        <div className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-2.5 shadow-soft">
+          <span className="text-sm text-gray-500">Votre note&nbsp;:</span>
+          {producerProfile.rating_count > 0 ? (
+            <>
+              <StarRating value={producerProfile.rating_avg} size={16} />
+              <span className="text-sm font-semibold text-gray-900">{producerProfile.rating_avg.toFixed(1)}</span>
+              <span className="text-xs text-gray-400">({producerProfile.rating_count} avis)</span>
+            </>
+          ) : (
+            <span className="text-sm text-gray-400">Pas encore d'avis</span>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Annonces totales" value={listings?.length ?? 0} icon={<ListChecks className="h-5 w-5" />} />

@@ -35,8 +35,8 @@ export default function NavTestPage() {
                 <ArrowLeft className="h-4 w-4" /> Aller au site
               </Button>
             </Link>
-            <Link to="/accueil-2">
-              <Button variant="ghost">Voir la page d'accueil test</Button>
+            <Link to="/">
+              <Button variant="ghost">Voir la page d'accueil</Button>
             </Link>
           </div>
         </div>
