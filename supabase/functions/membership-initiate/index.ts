@@ -2,16 +2,11 @@
 // AgriLien Sénégal — Edge Function `membership-initiate`
 // Initie un paiement PayTech pour l'adhésion « Partenaire » d'un prestataire.
 //
-// Sécurité : le montant et la durée sont fixés ICI (jamais reçus du client). Le
-// client n'envoie rien d'autre que son JWT ; on retrouve sa fiche prestataire,
-// on vérifie qu'elle est vérifiée, et on crée une transaction kind='membership'.
-// L'IPN (payment-ipn) la marque 'paye' (pas de request_id → pas de réservation
-// de stock), puis un trigger active l'adhésion.
-//
-// === Tarif (source de vérité) — garder synchronisé avec src/lib/constants.ts ===
-const MEMBERSHIP_PRICE = 10000; // FCFA
-const MEMBERSHIP_DAYS = 30; // jours
-// ============================================================================
+// Sécurité : le client envoie un plan_id ; le PRIX et la DURÉE sont lus depuis
+// la table membership_plans (source de vérité) — jamais reçus du client. On
+// retrouve sa fiche prestataire, on vérifie qu'elle est vérifiée, et on crée une
+// transaction kind='membership'. L'IPN (payment-ipn) la marque 'paye' (pas de
+// request_id → pas de réservation de stock), puis un trigger active l'adhésion.
 //
 // Secrets requis : PAYTECH_API_KEY, PAYTECH_API_SECRET, PAYTECH_ENV (test|prod),
 //   APP_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto).
@@ -77,7 +72,26 @@ async function handle(req: Request): Promise<Response> {
     return json({ error: 'Votre fiche doit être vérifiée avant de devenir Partenaire.' }, 409);
   }
 
-  const amount = MEMBERSHIP_PRICE;
+  // --- Forfait choisi (prix + durée = source de vérité, lus en base) -------
+  let planId: string | undefined;
+  try {
+    ({ plan_id: planId } = await req.json());
+  } catch {
+    return json({ error: 'Requête invalide.' }, 400);
+  }
+  if (!planId) return json({ error: 'Forfait manquant.' }, 400);
+
+  const { data: plan, error: planErr } = await admin
+    .from('membership_plans')
+    .select('id, name, price, duration_days, is_active')
+    .eq('id', planId)
+    .maybeSingle();
+  if (planErr) return json({ error: 'Lecture du forfait impossible.' }, 500);
+  if (!plan || !plan.is_active) return json({ error: 'Forfait indisponible.' }, 404);
+
+  const amount = Math.round(Number(plan.price));
+  if (!(amount > 0)) return json({ error: 'Montant invalide.' }, 422);
+
   const env = Deno.env.get('PAYTECH_ENV') ?? 'test';
   const refCommand = `AGRI-MBR-${String(provider.id).slice(0, 8)}-${Date.now()}`;
 
@@ -87,7 +101,8 @@ async function handle(req: Request): Promise<Response> {
       ref_command: refCommand,
       kind: 'membership',
       provider_id: provider.id,
-      membership_days: MEMBERSHIP_DAYS,
+      membership_plan_id: plan.id,
+      membership_days: plan.duration_days,
       buyer_id: userId,
       amount,
       currency: 'XOF',
@@ -103,11 +118,11 @@ async function handle(req: Request): Promise<Response> {
   const appUrl = Deno.env.get('APP_URL') ?? '';
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const payload = {
-    item_name: `Adhésion Partenaire — ${provider.name}`,
+    item_name: `Adhésion Partenaire ${plan.name} — ${provider.name}`,
     item_price: amount,
     currency: 'XOF',
     ref_command: refCommand,
-    command_name: `Adhésion Partenaire (${MEMBERSHIP_DAYS} jours) — ${provider.name}`,
+    command_name: `Adhésion Partenaire ${plan.name} (${plan.duration_days} jours) — ${provider.name}`,
     env,
     ipn_url: `${supabaseUrl}/functions/v1/payment-ipn`,
     success_url: `${appUrl}/paiement/succes?ref=${refCommand}`,

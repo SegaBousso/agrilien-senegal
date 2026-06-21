@@ -45,6 +45,7 @@ import AdminCategories from '@/pages/admin/AdminCategories';
 import AdminOfficialPrices from '@/pages/admin/AdminOfficialPrices';
 import AdminServices from '@/pages/admin/AdminServices';
 import AdminProviders from '@/pages/admin/AdminProviders';
+import AdminMembershipPlans from '@/pages/admin/AdminMembershipPlans';
 import AdminStats from '@/pages/admin/AdminStats';
 
 export default function App() {
@@ -139,6 +140,7 @@ export default function App() {
           <Route path="/admin/prix-officiels" element={<AdminOfficialPrices />} />
           <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/prestataires" element={<AdminProviders />} />
+          <Route path="/admin/forfaits" element={<AdminMembershipPlans />} />
           <Route path="/admin/statistiques" element={<AdminStats />} />
         </Route>
 

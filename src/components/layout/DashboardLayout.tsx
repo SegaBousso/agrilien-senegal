@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   BarChart3,
   BookOpen,
+  CreditCard,
   FolderTree,
   Heart,
   IdCard,
@@ -59,6 +60,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/admin/prix-officiels', label: 'Prix officiels', icon: Landmark },
     { to: '/admin/services', label: 'Catalogue services', icon: Wrench },
     { to: '/admin/prestataires', label: 'Prestataires', icon: Truck },
+    { to: '/admin/forfaits', label: 'Forfaits Partenaire', icon: CreditCard },
     { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   ],
 };

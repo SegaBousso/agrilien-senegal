@@ -141,6 +141,18 @@ export const serviceSchema = z.object({
 });
 export type ServiceInput = z.infer<typeof serviceSchema>;
 
+// --- Forfait d'adhésion Partenaire (admin) ------------------------------------
+export const membershipPlanSchema = z.object({
+  name: z.string().min(2, 'Nom requis').max(80, 'Nom trop long'),
+  duration_days: z.coerce.number().int().positive('Durée en jours requise'),
+  price: z.coerce.number().nonnegative('Prix invalide'),
+  description: z.string().max(300, 'Description trop longue').optional().or(z.literal('')),
+  highlight: z.boolean().default(false),
+  sort_order: z.coerce.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+export type MembershipPlanInput = z.infer<typeof membershipPlanSchema>;
+
 // --- Contact ------------------------------------------------------------------
 export const contactSchema = z.object({
   name: z.string().min(2, 'Nom requis'),

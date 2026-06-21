@@ -111,6 +111,20 @@ export interface ServiceProvider {
   services?: Service[];
 }
 
+/** Forfait d'adhésion « Partenaire » (géré par l'admin). */
+export interface MembershipPlan {
+  id: string;
+  name: string;
+  duration_days: number;
+  price: number;
+  description: string | null;
+  highlight: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface BuyerProfile {
   id: string;
   user_id: string;
@@ -224,6 +238,7 @@ export interface Transaction {
   kind: 'acompte' | 'membership';
   request_id: string | null;
   provider_id: string | null;
+  membership_plan_id: string | null;
   membership_days: number | null;
   buyer_id: string;
   amount: number;

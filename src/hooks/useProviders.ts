@@ -63,9 +63,9 @@ export function useUpdateProvider(userId: string | undefined) {
   });
 }
 
-/** Lance le paiement PayTech de l'adhésion « Partenaire ». */
+/** Lance le paiement PayTech de l'adhésion « Partenaire » pour un forfait donné. */
 export function useInitiateMembership() {
-  return useMutation({ mutationFn: () => initiateMembershipPayment() });
+  return useMutation({ mutationFn: (planId: string) => initiateMembershipPayment(planId) });
 }
 
 export function useRequestProviderVerification(userId: string | undefined) {

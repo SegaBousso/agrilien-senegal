@@ -22,13 +22,14 @@ export async function initiatePayment(requestId: string): Promise<InitiatePaymen
 }
 
 /**
- * Initie le paiement PayTech de l'adhésion « Partenaire » du prestataire connecté.
- * Le montant et la durée sont fixés côté serveur. Renvoie l'URL du checkout.
+ * Initie le paiement PayTech de l'adhésion « Partenaire » pour le forfait choisi.
+ * Le montant et la durée sont relus côté serveur depuis le forfait (jamais le
+ * client). Renvoie l'URL du checkout.
  */
-export async function initiateMembershipPayment(): Promise<InitiatePaymentResult> {
+export async function initiateMembershipPayment(planId: string): Promise<InitiatePaymentResult> {
   const { data, error } = await supabase.functions.invoke<InitiatePaymentResult>(
     'membership-initiate',
-    { body: {} },
+    { body: { plan_id: planId } },
   );
   if (error) throw error;
   if (!data?.redirect_url) throw new Error('Réponse de paiement invalide.');
