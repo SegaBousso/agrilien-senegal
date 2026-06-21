@@ -3,8 +3,10 @@ import { NavLink, Outlet } from 'react-router-dom';
 import {
   BadgeCheck,
   BarChart3,
+  BookOpen,
   FolderTree,
   Heart,
+  IdCard,
   Inbox,
   Landmark,
   LayoutDashboard,
@@ -15,6 +17,7 @@ import {
   ShoppingBag,
   Truck,
   Users,
+  Wrench,
   X,
 } from 'lucide-react';
 import { MarketRegisterNavbar } from './MarketRegisterNavbar';
@@ -42,6 +45,11 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/acheteur/demandes', label: 'Mes demandes', icon: Send },
     { to: '/catalogue', label: 'Parcourir le catalogue', icon: ShoppingBag },
   ],
+  prestataire: [
+    { to: '/prestataire/dashboard', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
+    { to: '/prestataire/profil', label: 'Ma fiche', icon: IdCard },
+    { to: '/services', label: 'Voir le carnet', icon: BookOpen },
+  ],
   admin: [
     { to: '/admin/dashboard', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
     { to: '/admin/annonces', label: 'Modération annonces', icon: ListChecks },
@@ -49,6 +57,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/admin/verifications', label: 'Vérifications', icon: BadgeCheck },
     { to: '/admin/categories', label: 'Catégories', icon: FolderTree },
     { to: '/admin/prix-officiels', label: 'Prix officiels', icon: Landmark },
+    { to: '/admin/services', label: 'Catalogue services', icon: Wrench },
     { to: '/admin/prestataires', label: 'Prestataires', icon: Truck },
     { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   ],
@@ -57,6 +66,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
 const TITLES: Record<Exclude<UserRole, 'visitor'>, string> = {
   producer: 'Espace producteur',
   buyer: 'Espace acheteur',
+  prestataire: 'Espace prestataire',
   admin: 'Administration',
 };
 

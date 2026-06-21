@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Sprout, Store } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Sprout, Store, Truck } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/Button';
@@ -44,10 +44,13 @@ export default function RegisterPage() {
         return;
       }
       toast('Compte créé avec succès ! Bienvenue sur AgriLien.', 'success');
-      setTimeout(
-        () => navigate(values.role === 'producer' ? '/producteur/dashboard' : '/acheteur/dashboard', { replace: true }),
-        200,
-      );
+      const dash =
+        values.role === 'producer'
+          ? '/producteur/dashboard'
+          : values.role === 'prestataire'
+            ? '/prestataire/dashboard'
+            : '/acheteur/dashboard';
+      setTimeout(() => navigate(dash, { replace: true }), 200);
     } catch (err) {
       setServerError(
         err instanceof Error && err.message.toLowerCase().includes('already')
@@ -80,7 +83,7 @@ export default function RegisterPage() {
             <p className="mb-2 text-sm font-medium text-gray-700">
               Je suis un… <span className="text-red-500">*</span>
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <RoleCard
                 active={role === 'producer'}
                 onClick={() => setValue('role', 'producer')}
@@ -94,6 +97,13 @@ export default function RegisterPage() {
                 icon={Store}
                 title="Acheteur"
                 subtitle="Je cherche des produits"
+              />
+              <RoleCard
+                active={role === 'prestataire'}
+                onClick={() => setValue('role', 'prestataire')}
+                icon={Truck}
+                title="Prestataire"
+                subtitle="Je propose un service"
               />
             </div>
           </div>
@@ -112,7 +122,7 @@ export default function RegisterPage() {
           </Field>
 
           {/* Champs spécifiques au rôle */}
-          {role === 'producer' ? (
+          {role === 'producer' && (
             <div className="grid gap-4 rounded-xl border border-border bg-muted p-4 sm:grid-cols-2">
               <Field label="Nom de l'exploitation" htmlFor="farm_name" error={errors.farm_name?.message} required>
                 <Input id="farm_name" placeholder="Ferme Keur Massar" {...register('farm_name')} />
@@ -130,7 +140,32 @@ export default function RegisterPage() {
                 </Select>
               </Field>
             </div>
-          ) : (
+          )}
+
+          {role === 'prestataire' && (
+            <div className="grid gap-4 rounded-xl border border-border bg-muted p-4 sm:grid-cols-2">
+              <Field label="Nom de votre service" htmlFor="farm_name" error={errors.farm_name?.message} required>
+                <Input id="farm_name" placeholder="Transport Diallo, Tracteurs du Saloum…" {...register('farm_name')} />
+              </Field>
+              <Field label="Région de base" htmlFor="region" error={errors.region?.message} required>
+                <Select id="region" defaultValue="" {...register('region')}>
+                  <option value="" disabled>
+                    Sélectionner
+                  </option>
+                  {SENEGAL_REGIONS.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <p className="text-xs text-gray-500 sm:col-span-2">
+                Vous choisirez les services que vous proposez juste après, dans votre espace.
+              </p>
+            </div>
+          )}
+
+          {role === 'buyer' && (
             <div className="grid gap-4 rounded-xl border border-border bg-muted p-4 sm:grid-cols-2">
               <Field label="Type d'acheteur" htmlFor="buyer_type" error={errors.buyer_type?.message}>
                 <Select id="buyer_type" {...register('buyer_type')}>

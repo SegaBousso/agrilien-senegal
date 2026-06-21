@@ -12,7 +12,6 @@ import CataloguePage from '@/pages/CataloguePage';
 import ListingDetailPage from '@/pages/ListingDetailPage';
 import ContactPage from '@/pages/ContactPage';
 import ServicesPage from '@/pages/ServicesPage';
-import ServiceProviderFormPage from '@/pages/ServiceProviderFormPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
@@ -32,6 +31,10 @@ import BuyerDashboard from '@/pages/buyer/BuyerDashboard';
 import BuyerFavorites from '@/pages/buyer/BuyerFavorites';
 import BuyerRequests from '@/pages/buyer/BuyerRequests';
 
+// Espace prestataire
+import PrestataireDashboard from '@/pages/prestataire/PrestataireDashboard';
+import PrestataireProfile from '@/pages/prestataire/PrestataireProfile';
+
 // Espace admin
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
@@ -39,6 +42,7 @@ import AdminVerifications from '@/pages/admin/AdminVerifications';
 import AdminListings from '@/pages/admin/AdminListings';
 import AdminCategories from '@/pages/admin/AdminCategories';
 import AdminOfficialPrices from '@/pages/admin/AdminOfficialPrices';
+import AdminServices from '@/pages/admin/AdminServices';
 import AdminProviders from '@/pages/admin/AdminProviders';
 import AdminStats from '@/pages/admin/AdminStats';
 
@@ -57,14 +61,6 @@ export default function App() {
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />
           <Route path="/services" element={<ServicesPage />} />
-          <Route
-            path="/services/inscription"
-            element={
-              <ProtectedRoute>
-                <ServiceProviderFormPage />
-              </ProtectedRoute>
-            }
-          />
           <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/notifications"
@@ -113,6 +109,18 @@ export default function App() {
           <Route path="/acheteur/demandes" element={<BuyerRequests />} />
         </Route>
 
+        {/* Espace prestataire de services */}
+        <Route
+          element={
+            <ProtectedRoute role="prestataire">
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/prestataire/dashboard" element={<PrestataireDashboard />} />
+          <Route path="/prestataire/profil" element={<PrestataireProfile />} />
+        </Route>
+
         {/* Espace admin */}
         <Route
           element={
@@ -127,6 +135,7 @@ export default function App() {
           <Route path="/admin/annonces" element={<AdminListings />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/prix-officiels" element={<AdminOfficialPrices />} />
+          <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/prestataires" element={<AdminProviders />} />
           <Route path="/admin/statistiques" element={<AdminStats />} />
         </Route>

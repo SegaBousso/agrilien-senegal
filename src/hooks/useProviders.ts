@@ -14,10 +14,10 @@ import {
 import type { ServiceProviderInput } from '@/lib/validations';
 import type { VerificationStatus } from '@/types/database';
 
-/** Carnet public (filtré par métier / région). */
+/** Carnet public (filtré par domaine / région). */
 export function usePublicProviders(filters: ProviderFilters) {
   return useQuery({
-    queryKey: ['providers', 'public', filters.category ?? 'all', filters.region ?? 'all'],
+    queryKey: ['providers', 'public', filters.domain ?? 'all', filters.region ?? 'all'],
     queryFn: () => fetchPublicProviders(filters),
   });
 }

@@ -26,6 +26,7 @@ const LINKS = [
 const DASHBOARD_PATH: Record<UserRole, string> = {
   producer: '/producteur/dashboard',
   buyer: '/acheteur/dashboard',
+  prestataire: '/prestataire/dashboard',
   admin: '/admin/dashboard',
   visitor: '/',
 };

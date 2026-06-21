@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookMarked, Tractor, Truck } from 'lucide-react';
+import { ArrowRight, BookMarked, Lightbulb, PawPrint, Tractor, Truck, Wrench } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Select } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/States';
 import { ProviderCard } from '@/components/services/ProviderCard';
 import { usePublicProviders } from '@/hooks/useProviders';
+import { useActiveServices } from '@/hooks/useServices';
 import {
   SENEGAL_REGIONS,
-  SERVICE_CATEGORIES,
-  SERVICE_CATEGORY_LABELS,
-  SERVICE_CATEGORY_TAGLINES,
+  SERVICE_DOMAINS,
+  SERVICE_DOMAIN_LABELS,
+  SERVICE_DOMAIN_TAGLINES,
 } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { ServiceCategory } from '@/types/database';
+import type { ServiceDomain } from '@/types/database';
 
 const ED = '"Bricolage Grotesque", Lexend, system-ui, sans-serif';
 const MONO = '"Spline Sans Mono", ui-monospace, SFMono-Regular, monospace';
@@ -21,22 +22,30 @@ const BISSAP = '#8A1C3B';
 const INK = '#17120C';
 const PAPER = '#FAF8F3';
 
-const GLYPH = { transport: Truck, mecanisation: Tractor } as const;
+const GLYPH = {
+  transport: Truck,
+  mecanisation: Tractor,
+  elevage: PawPrint,
+  conseil: Lightbulb,
+  autre: Wrench,
+} as const;
 
 export default function ServicesPage() {
-  const [category, setCategory] = useState<ServiceCategory | undefined>(undefined);
+  const [domain, setDomain] = useState<ServiceDomain | undefined>(undefined);
   const [region, setRegion] = useState<string>('');
 
-  const { data: providers = [], isLoading } = usePublicProviders({
-    category,
-    region: region || undefined,
-  });
+  const { data: catalog = [] } = useActiveServices();
+  const { data: providers = [], isLoading } = usePublicProviders({ domain, region: region || undefined });
+
+  // Domaines réellement présents au catalogue (l'admin les pilote).
+  const domains = SERVICE_DOMAINS.filter((d) => catalog.some((s) => s.domain === d));
+  const openingDomains = domains.length > 0 ? domains : (['transport', 'mecanisation'] as ServiceDomain[]);
 
   return (
     <div style={{ backgroundColor: PAPER }}>
       <Seo
         title="Carnet des prestataires"
-        description="Transporteurs et opérateurs de mécanisation vérifiés, région par région. Appelez-les directement."
+        description="Prestataires de services agricoles vérifiés, région par région. Appelez-les directement."
       />
 
       {/* ── Masthead ─────────────────────────────────────────────────────── */}
@@ -58,19 +67,19 @@ export default function ServicesPage() {
             <span style={{ color: BISSAP }}>prestataires.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-600">
-            Les bras qui prolongent la récolte : transporteurs et opérateurs de mécanisation, contrôlés
+            Les bras qui prolongent la récolte : transport, mécanisation et autres services, contrôlés
             un à un par AgriLien. Pas d'intermédiaire, pas d'avance — vous appelez directement.
           </p>
 
-          {/* Deux métiers d'ouverture */}
+          {/* Domaines d'ouverture (pilotés par le catalogue admin) */}
           <div className="mt-8 grid gap-3 sm:max-w-2xl sm:grid-cols-2">
-            {SERVICE_CATEGORIES.map((c) => {
-              const Icon = GLYPH[c];
-              const active = category === c;
+            {openingDomains.slice(0, 4).map((d) => {
+              const Icon = GLYPH[d];
+              const active = domain === d;
               return (
                 <button
-                  key={c}
-                  onClick={() => setCategory(active ? undefined : c)}
+                  key={d}
+                  onClick={() => setDomain(active ? undefined : d)}
                   className={cn(
                     'flex items-start gap-3 rounded-2xl border border-border bg-surface p-4 text-left transition-all duration-200',
                     active ? 'shadow-soft' : 'hover:-translate-y-0.5 hover:shadow-soft',
@@ -86,10 +95,10 @@ export default function ServicesPage() {
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-gray-900" style={{ fontFamily: ED }}>
-                      {SERVICE_CATEGORY_LABELS[c]}
+                      {SERVICE_DOMAIN_LABELS[d]}
                     </span>
                     <span className="mt-0.5 block text-xs leading-snug text-gray-500">
-                      {SERVICE_CATEGORY_TAGLINES[c]}
+                      {SERVICE_DOMAIN_TAGLINES[d]}
                     </span>
                   </span>
                 </button>
@@ -104,30 +113,26 @@ export default function ServicesPage() {
         <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setCategory(undefined)}
+              onClick={() => setDomain(undefined)}
               className={cn(
                 'rounded-full px-4 py-1.5 text-[12px] uppercase transition-colors',
-                !category ? 'text-white' : 'bg-muted text-gray-600 hover:bg-gray-200',
+                !domain ? 'text-white' : 'bg-muted text-gray-600 hover:bg-gray-200',
               )}
-              style={{ fontFamily: MONO, letterSpacing: '0.1em', backgroundColor: !category ? INK : undefined }}
+              style={{ fontFamily: MONO, letterSpacing: '0.1em', backgroundColor: !domain ? INK : undefined }}
             >
               Tous
             </button>
-            {SERVICE_CATEGORIES.map((c) => (
+            {openingDomains.map((d) => (
               <button
-                key={c}
-                onClick={() => setCategory(c)}
+                key={d}
+                onClick={() => setDomain(d)}
                 className={cn(
                   'rounded-full px-4 py-1.5 text-[12px] uppercase transition-colors',
-                  category === c ? 'text-white' : 'bg-muted text-gray-600 hover:bg-gray-200',
+                  domain === d ? 'text-white' : 'bg-muted text-gray-600 hover:bg-gray-200',
                 )}
-                style={{
-                  fontFamily: MONO,
-                  letterSpacing: '0.1em',
-                  backgroundColor: category === c ? BISSAP : undefined,
-                }}
+                style={{ fontFamily: MONO, letterSpacing: '0.1em', backgroundColor: domain === d ? BISSAP : undefined }}
               >
-                {SERVICE_CATEGORY_LABELS[c]}
+                {SERVICE_DOMAIN_LABELS[d]}
               </button>
             ))}
           </div>
@@ -152,15 +157,15 @@ export default function ServicesPage() {
               Aucun prestataire ici pour l'instant
             </p>
             <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
-              Le carnet se remplit région par région. Vous proposez un service de transport ou de
-              mécanisation&nbsp;? Inscrivez-vous — vous serez parmi les premiers.
+              Le carnet se remplit région par région. Vous proposez un service agricole&nbsp;?
+              Inscrivez-vous — vous serez parmi les premiers.
             </p>
             <Link
-              to="/services/inscription"
+              to="/inscription"
               className="mt-5 inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
               style={{ backgroundColor: BISSAP }}
             >
-              Inscrire mon service <ArrowRight className="h-4 w-4" />
+              Devenir prestataire <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         ) : (
@@ -197,16 +202,16 @@ export default function ServicesPage() {
               Entrez au carnet du marché
             </h2>
             <p className="mt-2 text-sm leading-relaxed" style={{ color: 'rgba(250,248,243,0.7)' }}>
-              Inscription gratuite. Après vérification, votre fiche est visible des producteurs et
-              acheteurs de votre région — qui vous appellent directement.
+              Créez un compte prestataire, cochez vos services. Après vérification, votre fiche est
+              visible des producteurs et acheteurs de votre région — qui vous appellent directement.
             </p>
           </div>
           <Link
-            to="/services/inscription"
+            to="/inscription"
             className="inline-flex shrink-0 items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold"
             style={{ backgroundColor: PAPER, color: INK }}
           >
-            Inscrire mon service <ArrowRight className="h-4 w-4" />
+            Devenir prestataire <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>

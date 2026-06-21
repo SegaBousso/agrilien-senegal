@@ -4,7 +4,7 @@
  * être régénéré avec : `supabase gen types typescript --project-id <id>`.
  */
 
-export type UserRole = 'visitor' | 'producer' | 'buyer' | 'admin';
+export type UserRole = 'visitor' | 'producer' | 'buyer' | 'prestataire' | 'admin';
 
 export type BuyerType =
   | 'particulier'
@@ -74,14 +74,25 @@ export interface ProducerReview {
   created_at: string;
 }
 
-export type ServiceCategory = 'transport' | 'mecanisation';
+export type ServiceDomain = 'transport' | 'mecanisation' | 'elevage' | 'conseil' | 'autre';
 
-/** Prestataire du Carnet de services (transport, mécanisation, …). */
+/** Service du catalogue (défini par l'admin). */
+export interface Service {
+  id: string;
+  name: string;
+  domain: ServiceDomain;
+  description: string | null;
+  icon: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+/** Prestataire du Carnet de services. Les services proposés viennent du catalogue. */
 export interface ServiceProvider {
   id: string;
   user_id: string | null;
   name: string;
-  category: ServiceCategory;
   description: string | null;
   region: string;
   commune: string | null;
@@ -96,6 +107,8 @@ export interface ServiceProvider {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+  /** Services proposés (joints depuis provider_services) — présent dans les listes. */
+  services?: Service[];
 }
 
 export interface BuyerProfile {

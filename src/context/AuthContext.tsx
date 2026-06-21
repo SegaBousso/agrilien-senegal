@@ -16,6 +16,7 @@ import {
   upsertBuyerProfile,
   upsertProducerProfile,
 } from '@/services/profiles.service';
+import { upsertProviderAtSignup } from '@/services/providers.service';
 import type { Profile, UserRole } from '@/types/database';
 
 interface AuthContextValue {
@@ -109,6 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await upsertProducerProfile(userId, {
             farm_name: input.farm_name ?? '',
             region: input.region ?? '',
+          });
+        } else if (input.role === 'prestataire') {
+          await upsertProviderAtSignup(userId, {
+            name: input.farm_name ?? '',
+            region: input.region ?? '',
+            phone: input.phone,
           });
         } else {
           await upsertBuyerProfile(userId, {

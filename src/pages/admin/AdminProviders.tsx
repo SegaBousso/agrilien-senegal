@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BadgeCheck, Check, MapPin, Phone, Star, StarOff, Tractor, Truck, X } from 'lucide-react';
+import { BadgeCheck, Check, Lightbulb, MapPin, PawPrint, Phone, Star, StarOff, Tractor, Truck, Wrench, X } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -12,9 +12,9 @@ import {
   useSetProviderVerification,
 } from '@/hooks/useProviders';
 import { useToast } from '@/context/ToastContext';
-import { SERVICE_CATEGORY_LABELS } from '@/lib/constants';
+import { SERVICE_DOMAIN_LABELS } from '@/lib/constants';
 import { formatDate } from '@/lib/utils';
-import type { ServiceCategory, VerificationStatus } from '@/types/database';
+import type { ServiceDomain, VerificationStatus } from '@/types/database';
 
 const TABS: { value: VerificationStatus; label: string }[] = [
   { value: 'en_attente', label: 'En attente' },
@@ -22,9 +22,12 @@ const TABS: { value: VerificationStatus; label: string }[] = [
   { value: 'rejete', label: 'Refusés' },
 ];
 
-const GLYPH: Record<ServiceCategory, typeof Truck> = {
+const GLYPH: Record<ServiceDomain, typeof Truck> = {
   transport: Truck,
   mecanisation: Tractor,
+  elevage: PawPrint,
+  conseil: Lightbulb,
+  autre: Wrench,
 };
 
 export default function AdminProviders() {
@@ -104,7 +107,8 @@ export default function AdminProviders() {
       ) : (
         <ul className="space-y-3">
           {rows.map((p) => {
-            const Icon = GLYPH[p.category];
+            const domain = p.services?.[0]?.domain ?? 'autre';
+            const Icon = GLYPH[domain];
             return (
               <li key={p.id} className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -124,7 +128,11 @@ export default function AdminProviders() {
                           </span>
                         )}
                       </p>
-                      <p className="text-sm text-gray-500">{SERVICE_CATEGORY_LABELS[p.category]}</p>
+                      <p className="text-sm text-gray-500">
+                        {(p.services ?? []).length > 0
+                          ? (p.services ?? []).map((s) => s.name).join(', ')
+                          : SERVICE_DOMAIN_LABELS[domain]}
+                      </p>
                       <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                         <span className="inline-flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5" /> {p.region}

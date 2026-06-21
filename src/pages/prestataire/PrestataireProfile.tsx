@@ -1,12 +1,12 @@
 import { useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, BadgeCheck, Clock, Save, ShieldCheck, ShieldX } from 'lucide-react';
+import { BadgeCheck, Clock, Save, ShieldCheck, ShieldX } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Field, Input, Select, Textarea } from '@/components/ui/Input';
 import { Spinner } from '@/components/ui/States';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import {
@@ -15,22 +15,18 @@ import {
   useRequestProviderVerification,
   useUpdateProvider,
 } from '@/hooks/useProviders';
-import {
-  SENEGAL_REGIONS,
-  SERVICE_CATEGORIES,
-  SERVICE_CATEGORY_LABELS,
-} from '@/lib/constants';
+import { useActiveServices } from '@/hooks/useServices';
+import { SENEGAL_REGIONS, SERVICE_DOMAINS, SERVICE_DOMAIN_LABELS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { serviceProviderSchema, type ServiceProviderInput } from '@/lib/validations';
 
-const ED = '"Bricolage Grotesque", Lexend, system-ui, sans-serif';
 const BISSAP = '#8A1C3B';
 
 type RegionName = (typeof SENEGAL_REGIONS)[number];
 
 const EMPTY: ServiceProviderInput = {
   name: '',
-  category: 'transport',
+  service_ids: [],
   region: 'Dakar',
   commune: '',
   service_areas: [],
@@ -39,10 +35,11 @@ const EMPTY: ServiceProviderInput = {
   description: '',
 };
 
-export default function ServiceProviderFormPage() {
+export default function PrestataireProfile() {
   const { profile } = useAuth();
   const { toast } = useToast();
   const { data: mine, isLoading } = useMyProvider(profile?.id);
+  const { data: catalog = [] } = useActiveServices();
 
   const create = useCreateProvider(profile?.id);
   const update = useUpdateProvider(profile?.id);
@@ -60,15 +57,14 @@ export default function ServiceProviderFormPage() {
     defaultValues: EMPTY,
   });
 
-  // Pré-remplit quand l'entrée existante est chargée.
   useEffect(() => {
     if (mine) {
       reset({
         name: mine.name,
-        category: mine.category,
-        region: mine.region as ServiceProviderInput['region'],
+        service_ids: (mine.services ?? []).map((s) => s.id),
+        region: mine.region as RegionName,
         commune: mine.commune ?? '',
-        service_areas: mine.service_areas as ServiceProviderInput['service_areas'],
+        service_areas: mine.service_areas as RegionName[],
         phone: mine.phone,
         whatsapp: mine.whatsapp ?? '',
         description: mine.description ?? '',
@@ -78,12 +74,22 @@ export default function ServiceProviderFormPage() {
 
   const areas = watch('service_areas') ?? [];
   const toggleArea = (r: RegionName) => {
-    setValue(
-      'service_areas',
-      areas.includes(r) ? areas.filter((a) => a !== r) : [...areas, r],
-      { shouldDirty: true },
-    );
+    setValue('service_areas', areas.includes(r) ? areas.filter((a) => a !== r) : [...areas, r], {
+      shouldDirty: true,
+    });
   };
+
+  const serviceIds = watch('service_ids') ?? [];
+  const toggleService = (id: string) => {
+    setValue('service_ids', serviceIds.includes(id) ? serviceIds.filter((s) => s !== id) : [...serviceIds, id], {
+      shouldDirty: true,
+    });
+  };
+
+  const grouped = SERVICE_DOMAINS.map((d) => ({
+    domain: d,
+    items: catalog.filter((s) => s.domain === d),
+  })).filter((g) => g.items.length > 0);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -109,41 +115,26 @@ export default function ServiceProviderFormPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="container py-16">
-        <Spinner />
-      </div>
-    );
-  }
+  if (isLoading) return <Spinner />;
 
   const status = mine?.verification_status;
 
   return (
-    <div className="container max-w-2xl py-10">
-      <Seo title="Inscrire mon service" />
+    <>
+      <Seo title="Ma fiche prestataire" />
+      <PageHeader
+        title="Ma fiche prestataire"
+        description="Décrivez votre service et cochez ce que vous proposez. Après vérification, votre fiche apparaît au Carnet."
+      />
 
-      <Link to="/services" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900">
-        <ArrowLeft className="h-4 w-4" /> Retour au carnet
-      </Link>
-
-      <h1 className="mt-4 text-3xl text-gray-900" style={{ fontFamily: ED, fontWeight: 700, letterSpacing: '-0.01em' }}>
-        {mine ? 'Mon service au carnet' : 'Inscrire mon service'}
-      </h1>
-      <p className="mt-2 text-sm text-gray-600">
-        Transport ou mécanisation : décrivez votre service. Après vérification par AgriLien, votre fiche
-        devient visible et les clients vous appellent directement.
-      </p>
-
-      {/* Bandeau de statut */}
       {mine && (
-        <div className="mt-6">
+        <div className="mb-6">
           {status === 'verifie' && (
             <StatusBanner
               tone="ok"
               icon={<BadgeCheck className="h-5 w-5" />}
               title="Vérifié — visible au carnet"
-              text="Votre fiche est publiée. Toute modification importante peut nécessiter une nouvelle vérification."
+              text="Votre fiche est publiée. Les clients vous appellent directement."
             />
           )}
           {status === 'en_attente' && (
@@ -176,41 +167,74 @@ export default function ServiceProviderFormPage() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-soft">
-        <Field label="Nom du service" htmlFor="name" error={errors.name?.message} required hint="Ex. « Transport Diallo & Fils », « Tracteurs du Saloum »">
+      <form
+        onSubmit={onSubmit}
+        className="max-w-2xl space-y-5 rounded-2xl border border-border bg-surface p-6 shadow-soft"
+      >
+        <Field
+          label="Nom de votre service"
+          htmlFor="name"
+          error={errors.name?.message}
+          required
+          hint="Ex. « Transport Diallo & Fils », « Tracteurs du Saloum »"
+        >
           <Input id="name" {...register('name')} />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Type de service" htmlFor="category" error={errors.category?.message} required>
-            <Select id="category" {...register('category')}>
-              {SERVICE_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {SERVICE_CATEGORY_LABELS[c]}
-                </option>
+        {/* Services proposés (catalogue) */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-gray-700">Services que je propose</p>
+          {grouped.length === 0 ? (
+            <p className="text-sm text-gray-500">Le catalogue est vide pour l'instant. Revenez bientôt.</p>
+          ) : (
+            <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-4">
+              {grouped.map((g) => (
+                <div key={g.domain}>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    {SERVICE_DOMAIN_LABELS[g.domain]}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {g.items.map((s) => {
+                      const on = serviceIds.includes(s.id);
+                      return (
+                        <button
+                          type="button"
+                          key={s.id}
+                          onClick={() => toggleService(s.id)}
+                          className={cn(
+                            'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                            on ? 'text-white' : 'border-border bg-surface text-gray-700 hover:bg-muted',
+                          )}
+                          style={on ? { backgroundColor: BISSAP, borderColor: BISSAP } : undefined}
+                          aria-pressed={on}
+                          title={s.description ?? undefined}
+                        >
+                          {s.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               ))}
-            </Select>
-          </Field>
-          <Field label="Région de base" htmlFor="region" error={errors.region?.message} required>
-            <Select id="region" {...register('region')}>
-              {SENEGAL_REGIONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </Select>
-          </Field>
+            </div>
+          )}
         </div>
+
+        <Field label="Région de base" htmlFor="region" error={errors.region?.message} required>
+          <Select id="region" {...register('region')}>
+            {SENEGAL_REGIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
         <Field label="Commune / localité" htmlFor="commune" error={errors.commune?.message} hint="Facultatif">
           <Input id="commune" {...register('commune')} />
         </Field>
 
-        <Field
-          label="Zones desservies"
-          error={Array.isArray(errors.service_areas) ? undefined : errors.service_areas?.message}
-          hint="Régions où vous intervenez (en plus de votre région de base)"
-        >
+        <Field label="Zones desservies" hint="Régions où vous intervenez (en plus de votre région de base)">
           <div className="flex flex-wrap gap-2 pt-1">
             {SENEGAL_REGIONS.map((r) => {
               const on = areas.includes(r);
@@ -242,17 +266,22 @@ export default function ServiceProviderFormPage() {
           </Field>
         </div>
 
-        <Field label="Description" htmlFor="description" error={errors.description?.message} hint="Matériel, capacité, tarifs indicatifs, disponibilités…">
+        <Field
+          label="Description"
+          htmlFor="description"
+          error={errors.description?.message}
+          hint="Matériel, capacité, tarifs indicatifs, disponibilités…"
+        >
           <Textarea id="description" rows={4} {...register('description')} />
         </Field>
 
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-end">
           <Button type="submit" loading={isSubmitting || create.isPending || update.isPending}>
             <Save className="h-4 w-4" /> {mine ? 'Enregistrer' : 'Créer ma fiche'}
           </Button>
         </div>
       </form>
-    </div>
+    </>
   );
 }
 
@@ -275,7 +304,12 @@ function StatusBanner({
     no: 'border-red-200 bg-red-50 text-red-700',
   }[tone];
   return (
-    <div className={cn('flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between', styles)}>
+    <div
+      className={cn(
+        'flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between',
+        styles,
+      )}
+    >
       <div className="flex gap-3">
         <span className="shrink-0">{icon}</span>
         <div>

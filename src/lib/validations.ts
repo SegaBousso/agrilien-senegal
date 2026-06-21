@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SENEGAL_REGIONS, SERVICE_CATEGORIES, UNITS } from './constants';
+import { SENEGAL_REGIONS, UNITS } from './constants';
 
 // Mobiles sénégalais : préfixes 70 (Expresso), 75 (Free/Promobile), 76 (Free),
 // 77 (Orange), 78 (Orange/Yas). Indicatif +221 / 00221 optionnel.
@@ -23,10 +23,10 @@ export const registerSchema = z
       .regex(phoneRegex, 'Numéro sénégalais invalide (ex. 77 123 45 67)'),
     password: z.string().min(8, 'Au moins 8 caractères'),
     confirm_password: z.string(),
-    role: z.enum(['producer', 'buyer'], {
+    role: z.enum(['producer', 'buyer', 'prestataire'], {
       errorMap: () => ({ message: 'Choisissez un type de compte' }),
     }),
-    // Champs producteur
+    // Champs producteur / prestataire (farm_name = nom du service pour un prestataire)
     farm_name: z.string().optional(),
     region: z.string().optional(),
     // Champs acheteur
@@ -39,11 +39,12 @@ export const registerSchema = z
     message: 'Les mots de passe ne correspondent pas',
     path: ['confirm_password'],
   })
-  .refine((data) => data.role !== 'producer' || (data.farm_name && data.farm_name.length >= 2), {
-    message: "Le nom de l'exploitation est requis",
-    path: ['farm_name'],
-  })
-  .refine((data) => data.role !== 'producer' || !!data.region, {
+  .refine(
+    (data) =>
+      !['producer', 'prestataire'].includes(data.role) || (data.farm_name && data.farm_name.length >= 2),
+    { message: 'Ce nom est requis', path: ['farm_name'] },
+  )
+  .refine((data) => !['producer', 'prestataire'].includes(data.role) || !!data.region, {
     message: 'La région est requise',
     path: ['region'],
   });
@@ -105,9 +106,8 @@ export type OfficialPriceInput = z.infer<typeof officialPriceSchema>;
 // --- Prestataire (Carnet de services) -----------------------------------------
 export const serviceProviderSchema = z.object({
   name: z.string().min(2, 'Nom du service requis').max(120, 'Nom trop long'),
-  category: z.enum(SERVICE_CATEGORIES, {
-    errorMap: () => ({ message: 'Choisissez un type de service' }),
-  }),
+  // Services proposés, choisis dans le catalogue géré par l'admin.
+  service_ids: z.array(z.string().uuid()).default([]),
   region: z.enum(SENEGAL_REGIONS, {
     errorMap: () => ({ message: 'Région requise' }),
   }),
@@ -127,6 +127,19 @@ export const serviceProviderSchema = z.object({
   description: z.string().max(1500, 'Description trop longue').optional().or(z.literal('')),
 });
 export type ServiceProviderInput = z.infer<typeof serviceProviderSchema>;
+
+// --- Service du catalogue (admin) ---------------------------------------------
+export const serviceSchema = z.object({
+  name: z.string().min(2, 'Nom requis').max(120, 'Nom trop long'),
+  domain: z.enum(['transport', 'mecanisation', 'elevage', 'conseil', 'autre'], {
+    errorMap: () => ({ message: 'Domaine requis' }),
+  }),
+  description: z.string().max(500, 'Description trop longue').optional().or(z.literal('')),
+  icon: z.string().optional().or(z.literal('')),
+  sort_order: z.coerce.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+export type ServiceInput = z.infer<typeof serviceSchema>;
 
 // --- Contact ------------------------------------------------------------------
 export const contactSchema = z.object({

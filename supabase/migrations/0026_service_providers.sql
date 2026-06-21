@@ -1,16 +1,16 @@
 -- =============================================================================
--- AgriLien Sénégal — Carnet de prestataires (annuaire de services vérifiés)
+-- AgriLien Sénégal — Profil prestataire (Carnet de services)
 -- Migration 0026 — Première brique de l'expansion « services ».
 --
--- Choix assumés (cf. note de cadrage) :
---   • On commence par TRANSPORT et MÉCANISATION (revenu évident, peu régulé) —
---     pas le vétérinaire (le plus régulé/risqué), qui viendra plus tard.
---   • Pas de réservation ni d'acompte côté client : c'est un ANNUAIRE. Le contact
---     est direct (téléphone / WhatsApp). La monétisation est côté PRESTATAIRE,
---     via une ADHÉSION (membership) que l'admin active — elle met l'entrée en
---     avant (« Partenaire ») dans le Carnet.
---   • Vérification calquée sur les producteurs : le prestataire DEMANDE, l'admin
---     accorde. Seules les entrées vérifiées + publiées sont visibles du public.
+-- Modèle (cf. note de cadrage, v2) :
+--   • « prestataire » devient un RÔLE à l'inscription (cf. 0027). Chaque
+--     prestataire a UN profil ici (comme producer_profiles/buyer_profiles).
+--   • Les SERVICES qu'il propose sont un CATALOGUE défini par l'admin (cf. 0028,
+--     tables `services` + `provider_services`) — pas une catégorie en dur.
+--   • Pas de réservation ni d'acompte client : annuaire à contact direct.
+--   • Monétisation côté prestataire via une ADHÉSION « Partenaire » (admin).
+--   • Vérification calquée sur les producteurs : le prestataire DEMANDE,
+--     l'admin accorde. Seules les fiches vérifiées + publiées sont publiques.
 --
 -- Idempotent.
 -- =============================================================================
@@ -19,9 +19,8 @@
 
 create table if not exists public.service_providers (
   id                  uuid primary key default gen_random_uuid(),
-  user_id             uuid references auth.users (id) on delete set null,
+  user_id             uuid unique references public.profiles (id) on delete cascade,
   name                text not null,
-  category            text not null check (category in ('transport', 'mecanisation')),
   description         text,
   region              text not null,
   commune             text,
@@ -38,10 +37,9 @@ create table if not exists public.service_providers (
   updated_at          timestamptz not null default now()
 );
 
-create index if not exists service_providers_category_idx on public.service_providers (category);
-create index if not exists service_providers_region_idx   on public.service_providers (region);
-create index if not exists service_providers_verif_idx    on public.service_providers (verification_status);
-create index if not exists service_providers_user_idx     on public.service_providers (user_id);
+create index if not exists service_providers_region_idx on public.service_providers (region);
+create index if not exists service_providers_verif_idx  on public.service_providers (verification_status);
+create index if not exists service_providers_user_idx   on public.service_providers (user_id);
 
 -- -----------------------------------------------------------------------------
 -- updated_at automatique.
@@ -78,7 +76,6 @@ begin
   end if;
 
   if tg_op = 'INSERT' then
-    -- À la création, le prestataire part toujours de zéro.
     new.verification_status := 'non_verifie';
     new.verification_notes  := null;
     new.membership_active   := false;
@@ -91,7 +88,6 @@ begin
       end if;
       new.verification_notes := null;
     end if;
-    -- L'adhésion reste la chasse gardée de l'admin.
     new.membership_active := old.membership_active;
     new.membership_until  := old.membership_until;
   end if;

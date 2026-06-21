@@ -50,6 +50,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   visitor: 'Visiteur',
   producer: 'Producteur',
   buyer: 'Acheteur',
+  prestataire: 'Prestataire',
   admin: 'Administrateur',
 };
 
@@ -57,6 +58,7 @@ const ROLE_STYLES: Record<UserRole, string> = {
   visitor: 'bg-gray-100 text-gray-600',
   producer: 'bg-primary-100 text-primary-700',
   buyer: 'bg-blue-100 text-blue-700',
+  prestataire: 'bg-[#8A1C3B]/10 text-[#8A1C3B]',
   admin: 'bg-accent-100 text-accent-600',
 };
 

@@ -1,4 +1,4 @@
-import type { BuyerType, ListingStatus, RequestStatus, ServiceCategory } from '@/types/database';
+import type { BuyerType, ListingStatus, RequestStatus, ServiceDomain } from '@/types/database';
 
 /** Les 14 régions du Sénégal (fallback si la table regions est indisponible). */
 export const SENEGAL_REGIONS = [
@@ -20,18 +20,24 @@ export const SENEGAL_REGIONS = [
 
 export const UNITS = ['kg', 'tonne', 'sac', 'caisse', 'litre', 'unité', 'botte', 'tête'] as const;
 
-/** Catégories du Carnet de prestataires (on démarre volontairement étroit). */
-export const SERVICE_CATEGORIES = ['transport', 'mecanisation'] as const;
+/** Domaines du catalogue de services (l'admin crée les services dans ces familles). */
+export const SERVICE_DOMAINS = ['transport', 'mecanisation', 'elevage', 'conseil', 'autre'] as const;
 
-export const SERVICE_CATEGORY_LABELS: Record<ServiceCategory, string> = {
+export const SERVICE_DOMAIN_LABELS: Record<ServiceDomain, string> = {
   transport: 'Transport',
   mecanisation: 'Mécanisation',
+  elevage: 'Élevage',
+  conseil: 'Conseil',
+  autre: 'Autre',
 };
 
-/** Sous-titre court par métier, pour les écrans publics. */
-export const SERVICE_CATEGORY_TAGLINES: Record<ServiceCategory, string> = {
-  transport: 'Camions, charrettes, acheminement des récoltes et du bétail',
-  mecanisation: 'Tracteurs, labour, semis, battage et récolte mécanisée',
+/** Sous-titre court par domaine, pour les écrans publics. */
+export const SERVICE_DOMAIN_TAGLINES: Record<ServiceDomain, string> = {
+  transport: 'Acheminement des récoltes et du bétail',
+  mecanisation: 'Tracteurs, labour, semis, battage, récolte',
+  elevage: 'Soins, alimentation, accompagnement du cheptel',
+  conseil: 'Appui technique, agronomie, gestion',
+  autre: 'Autres services agricoles',
 };
 
 export const DELIVERY_OPTIONS = [
