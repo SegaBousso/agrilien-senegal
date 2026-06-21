@@ -18,6 +18,7 @@ const PAPER = '#FAF8F3';
 const LINKS = [
   { to: '/', label: 'Accueil' },
   { to: '/catalogue', label: 'Catalogue' },
+  { to: '/services', label: 'Services' },
   { to: '/a-propos', label: 'À propos' },
   { to: '/contact', label: 'Contact' },
 ];

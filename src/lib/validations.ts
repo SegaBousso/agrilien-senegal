@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SENEGAL_REGIONS, UNITS } from './constants';
+import { SENEGAL_REGIONS, SERVICE_CATEGORIES, UNITS } from './constants';
 
 // Mobiles sénégalais : préfixes 70 (Expresso), 75 (Free/Promobile), 76 (Free),
 // 77 (Orange), 78 (Orange/Yas). Indicatif +221 / 00221 optionnel.
@@ -101,6 +101,32 @@ export const officialPriceSchema = z.object({
   active: z.boolean().default(true),
 });
 export type OfficialPriceInput = z.infer<typeof officialPriceSchema>;
+
+// --- Prestataire (Carnet de services) -----------------------------------------
+export const serviceProviderSchema = z.object({
+  name: z.string().min(2, 'Nom du service requis').max(120, 'Nom trop long'),
+  category: z.enum(SERVICE_CATEGORIES, {
+    errorMap: () => ({ message: 'Choisissez un type de service' }),
+  }),
+  region: z.enum(SENEGAL_REGIONS, {
+    errorMap: () => ({ message: 'Région requise' }),
+  }),
+  commune: z.string().max(120).optional().or(z.literal('')),
+  service_areas: z.array(z.enum(SENEGAL_REGIONS)).default([]),
+  phone: z
+    .string()
+    .trim()
+    .min(1, 'Téléphone requis')
+    .regex(phoneRegex, 'Numéro sénégalais invalide (ex. 77 123 45 67)'),
+  whatsapp: z
+    .string()
+    .trim()
+    .regex(phoneRegex, 'Numéro WhatsApp invalide')
+    .optional()
+    .or(z.literal('')),
+  description: z.string().max(1500, 'Description trop longue').optional().or(z.literal('')),
+});
+export type ServiceProviderInput = z.infer<typeof serviceProviderSchema>;
 
 // --- Contact ------------------------------------------------------------------
 export const contactSchema = z.object({

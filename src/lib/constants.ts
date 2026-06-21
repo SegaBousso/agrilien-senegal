@@ -1,4 +1,4 @@
-import type { BuyerType, ListingStatus, RequestStatus } from '@/types/database';
+import type { BuyerType, ListingStatus, RequestStatus, ServiceCategory } from '@/types/database';
 
 /** Les 14 régions du Sénégal (fallback si la table regions est indisponible). */
 export const SENEGAL_REGIONS = [
@@ -19,6 +19,20 @@ export const SENEGAL_REGIONS = [
 ] as const;
 
 export const UNITS = ['kg', 'tonne', 'sac', 'caisse', 'litre', 'unité', 'botte', 'tête'] as const;
+
+/** Catégories du Carnet de prestataires (on démarre volontairement étroit). */
+export const SERVICE_CATEGORIES = ['transport', 'mecanisation'] as const;
+
+export const SERVICE_CATEGORY_LABELS: Record<ServiceCategory, string> = {
+  transport: 'Transport',
+  mecanisation: 'Mécanisation',
+};
+
+/** Sous-titre court par métier, pour les écrans publics. */
+export const SERVICE_CATEGORY_TAGLINES: Record<ServiceCategory, string> = {
+  transport: 'Camions, charrettes, acheminement des récoltes et du bétail',
+  mecanisation: 'Tracteurs, labour, semis, battage et récolte mécanisée',
+};
 
 export const DELIVERY_OPTIONS = [
   'Retrait sur place',

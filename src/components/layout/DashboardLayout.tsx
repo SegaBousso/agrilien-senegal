@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Send,
   ShoppingBag,
+  Truck,
   Users,
   X,
 } from 'lucide-react';
@@ -48,6 +49,7 @@ const NAV: Record<Exclude<UserRole, 'visitor'>, NavItem[]> = {
     { to: '/admin/verifications', label: 'Vérifications', icon: BadgeCheck },
     { to: '/admin/categories', label: 'Catégories', icon: FolderTree },
     { to: '/admin/prix-officiels', label: 'Prix officiels', icon: Landmark },
+    { to: '/admin/prestataires', label: 'Prestataires', icon: Truck },
     { to: '/admin/statistiques', label: 'Statistiques', icon: BarChart3 },
   ],
 };

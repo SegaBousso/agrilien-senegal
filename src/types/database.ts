@@ -74,6 +74,30 @@ export interface ProducerReview {
   created_at: string;
 }
 
+export type ServiceCategory = 'transport' | 'mecanisation';
+
+/** Prestataire du Carnet de services (transport, mécanisation, …). */
+export interface ServiceProvider {
+  id: string;
+  user_id: string | null;
+  name: string;
+  category: ServiceCategory;
+  description: string | null;
+  region: string;
+  commune: string | null;
+  service_areas: string[];
+  phone: string;
+  whatsapp: string | null;
+  profile_image: string | null;
+  verification_status: VerificationStatus;
+  verification_notes: string | null;
+  membership_active: boolean;
+  membership_until: string | null;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface BuyerProfile {
   id: string;
   user_id: string;
