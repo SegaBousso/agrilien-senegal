@@ -21,6 +21,20 @@ export async function initiatePayment(requestId: string): Promise<InitiatePaymen
   return data;
 }
 
+/**
+ * Initie le paiement PayTech de l'adhésion « Partenaire » du prestataire connecté.
+ * Le montant et la durée sont fixés côté serveur. Renvoie l'URL du checkout.
+ */
+export async function initiateMembershipPayment(): Promise<InitiatePaymentResult> {
+  const { data, error } = await supabase.functions.invoke<InitiatePaymentResult>(
+    'membership-initiate',
+    { body: {} },
+  );
+  if (error) throw error;
+  if (!data?.redirect_url) throw new Error('Réponse de paiement invalide.');
+  return data;
+}
+
 /** Transactions de l'acheteur connecté (RLS : limitées aux siennes). */
 export async function fetchMyTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase

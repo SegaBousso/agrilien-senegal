@@ -100,6 +100,18 @@ export const CHART_COLORS = {
   series: ['#16a34a', '#eab308', '#2563eb', '#b5651d', '#0ea5e9', '#84cc16'],
 } as const;
 
+/**
+ * Adhésion « Partenaire » (met la fiche prestataire en avant au Carnet).
+ * AFFICHAGE uniquement — le montant facturé est fixé côté serveur dans
+ * l'Edge Function `membership-initiate` (source de vérité). Garder synchronisé.
+ */
+export const MEMBERSHIP = {
+  price: 10000,
+  days: 30,
+  priceLabel: '10 000 FCFA',
+  periodLabel: 'mois',
+} as const;
+
 /** Image de secours quand une annonce n'a pas de photo. */
 export const PLACEHOLDER_IMAGE =
   'data:image/svg+xml;utf8,' +

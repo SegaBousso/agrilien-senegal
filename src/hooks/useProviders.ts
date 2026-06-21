@@ -11,6 +11,7 @@ import {
   updateMyProvider,
   type ProviderFilters,
 } from '@/services/providers.service';
+import { initiateMembershipPayment } from '@/services/payments.service';
 import type { ServiceProviderInput } from '@/lib/validations';
 import type { VerificationStatus } from '@/types/database';
 
@@ -60,6 +61,11 @@ export function useUpdateProvider(userId: string | undefined) {
       qc.invalidateQueries({ queryKey: ['providers', 'public'] });
     },
   });
+}
+
+/** Lance le paiement PayTech de l'adhésion « Partenaire ». */
+export function useInitiateMembership() {
+  return useMutation({ mutationFn: () => initiateMembershipPayment() });
 }
 
 export function useRequestProviderVerification(userId: string | undefined) {

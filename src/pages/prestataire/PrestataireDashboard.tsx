@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck, Clock, MapPin, Pencil, ShieldCheck, Star, Wrench } from 'lucide-react';
+import { BadgeCheck, Clock, Crown, MapPin, Pencil, ShieldCheck, Star, Wrench } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { Button } from '@/components/ui/Button';
 import { Spinner, EmptyState } from '@/components/ui/States';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { WeatherWidget } from '@/components/weather/WeatherWidget';
 import { useAuth } from '@/context/AuthContext';
-import { useMyProvider } from '@/hooks/useProviders';
+import { useInitiateMembership, useMyProvider } from '@/hooks/useProviders';
+import { useToast } from '@/context/ToastContext';
+import { MEMBERSHIP } from '@/lib/constants';
+import { formatDate } from '@/lib/utils';
 
 const STATUS = {
   verifie: { label: 'Vérifié — visible au carnet', cls: 'bg-primary-50 text-primary-800 border-primary-200', Icon: BadgeCheck },
@@ -18,6 +21,17 @@ const STATUS = {
 export default function PrestataireDashboard() {
   const { profile } = useAuth();
   const { data: mine, isLoading } = useMyProvider(profile?.id);
+  const initiate = useInitiateMembership();
+  const { toast } = useToast();
+
+  const goPartner = async () => {
+    try {
+      const { redirect_url } = await initiate.mutateAsync();
+      window.location.href = redirect_url;
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Paiement indisponible pour le moment.', 'error');
+    }
+  };
 
   if (isLoading) return <Spinner />;
 
@@ -108,6 +122,39 @@ export default function PrestataireDashboard() {
                 </Link>
               )}
             </div>
+
+            {/* Adhésion Partenaire (réservée aux fiches vérifiées) */}
+            {mine.verification_status === 'verifie' && (
+              <div className="rounded-2xl border border-border bg-surface p-5 shadow-soft">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-100 text-accent-600">
+                      <Crown className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="font-display font-semibold text-gray-900">
+                        {mine.membership_active ? 'Partenaire actif' : 'Devenez Partenaire'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {mine.membership_active
+                          ? `Votre fiche est mise en avant${mine.membership_until ? ` jusqu'au ${formatDate(mine.membership_until)}` : ''}.`
+                          : `Remontez en tête du Carnet avec le cachet « Partenaire ». ${MEMBERSHIP.priceLabel} / ${MEMBERSHIP.periodLabel}.`}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant={mine.membership_active ? 'outline' : 'primary'}
+                    size="sm"
+                    onClick={goPartner}
+                    loading={initiate.isPending}
+                    className="shrink-0"
+                  >
+                    <Crown className="h-4 w-4" />
+                    {mine.membership_active ? `Renouveler (${MEMBERSHIP.priceLabel})` : 'Devenir Partenaire'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <WeatherWidget region={mine.region} />

@@ -221,7 +221,10 @@ export type PaymentStatus =
 export interface Transaction {
   id: string;
   ref_command: string;
+  kind: 'acompte' | 'membership';
   request_id: string | null;
+  provider_id: string | null;
+  membership_days: number | null;
   buyer_id: string;
   amount: number;
   currency: string;
