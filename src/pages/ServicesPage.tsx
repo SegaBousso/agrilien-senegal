@@ -161,7 +161,7 @@ export default function ServicesPage() {
               Inscrivez-vous — vous serez parmi les premiers.
             </p>
             <Link
-              to="/inscription"
+              to="/services/partenaire"
               className="mt-5 inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
               style={{ backgroundColor: BISSAP }}
             >
@@ -207,7 +207,7 @@ export default function ServicesPage() {
             </p>
           </div>
           <Link
-            to="/inscription"
+            to="/services/partenaire"
             className="inline-flex shrink-0 items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold"
             style={{ backgroundColor: PAPER, color: INK }}
           >

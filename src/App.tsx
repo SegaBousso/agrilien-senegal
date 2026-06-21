@@ -12,6 +12,7 @@ import CataloguePage from '@/pages/CataloguePage';
 import ListingDetailPage from '@/pages/ListingDetailPage';
 import ContactPage from '@/pages/ContactPage';
 import ServicesPage from '@/pages/ServicesPage';
+import ServicesPartnerPage from '@/pages/ServicesPartnerPage';
 import PaymentResultPage from '@/pages/PaymentResultPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/annonce/:id" element={<ListingDetailPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/partenaire" element={<ServicesPartnerPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/notifications"

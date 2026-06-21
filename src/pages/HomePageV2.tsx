@@ -10,6 +10,8 @@ import {
   Scale,
   ShieldCheck,
   Sprout,
+  Tractor,
+  Truck,
 } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { HeroSearch } from '@/components/listings/HeroSearch';
@@ -394,6 +396,72 @@ export default function HomePageV2() {
               />
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ═══ LE CARNET — découverte des prestataires (transport, mécanisation) ═══ */}
+      <section className="border-t border-border">
+        <div className="container py-14 lg:py-16">
+          <div className="grid items-center gap-8 rounded-3xl border border-border bg-surface p-7 shadow-soft lg:grid-cols-[1.1fr_0.9fr] lg:p-10">
+            <div>
+              <Eyebrow>
+                <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: BISSAP }} />
+                Le carnet du marché
+              </Eyebrow>
+              <h2
+                className="mt-4 text-3xl text-gray-900 md:text-4xl"
+                style={{ fontFamily: ED, fontWeight: 700, letterSpacing: '-0.01em' }}
+              >
+                Récolter, c'est bien. <span style={{ color: BISSAP }}>L'acheminer, c'est mieux.</span>
+              </h2>
+              <p className="mt-4 max-w-md text-gray-600">
+                Besoin d'un transporteur pour vos sacs, d'un tracteur pour labourer&nbsp;? Le Carnet
+                réunit des prestataires vérifiés, région par région. Vous les appelez en direct.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Link
+                  to="/services"
+                  className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: BISSAP }}
+                >
+                  Consulter le Carnet <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/services/partenaire"
+                  className="text-sm font-semibold text-gray-600 transition-colors hover:text-gray-900"
+                >
+                  Vous proposez un service&nbsp;?
+                </Link>
+              </div>
+            </div>
+
+            {/* Aperçu : domaines en fiches de registre */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { icon: Truck, t: 'Transport', d: 'Récoltes & bétail' },
+                { icon: Tractor, t: 'Mécanisation', d: 'Labour, semis, battage' },
+              ].map((s) => (
+                <Link
+                  key={s.t}
+                  to="/services"
+                  className="group rounded-2xl border border-border bg-[rgb(var(--background))] p-5 transition-all hover:-translate-y-0.5 hover:shadow-soft"
+                >
+                  <span
+                    className="flex h-11 w-11 items-center justify-center rounded-xl"
+                    style={{ background: 'rgba(138,28,59,0.08)', color: BISSAP }}
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </span>
+                  <p className="mt-3 font-semibold text-gray-900" style={{ fontFamily: ED }}>
+                    {s.t}
+                  </p>
+                  <p className="mt-0.5 text-xs uppercase text-gray-500" style={{ fontFamily: MONO, letterSpacing: '0.08em' }}>
+                    {s.d}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
